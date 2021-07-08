@@ -1,4 +1,5 @@
 import sys
+import zlib
 import asyncio
 import json
 
@@ -14,6 +15,9 @@ __all__ = (
     'Gateway'
 )
 
+
+class Reconnect(Exception):
+    pass
 
 class HeartbeatManager:
     """
@@ -51,8 +55,8 @@ class HeartbeatManager:
             try:
                 await asyncio.wait_for(self.acked, timeout=3)
             except asyncio.TimeoutError:
-                await self._ws.reconnect()
                 self.stop()
+                raise Reconnect()
             await asyncio.sleep(self._gateway.heartbeat_interval)
 
 
@@ -70,11 +74,18 @@ class Gateway:
         """
         Create a Gateway object from client
         """
-        cls()
+        self = cls()
         # TODO: Add all the attributes needed here
         # Stuff here means that it will stay as it is for the whole time
         self._inflator = zlib.decompressobj()
-        await self.connect()
+        while not self._connection.closed:
+            try:
+                await self.connect()
+                while True:
+                    await self.receive_event()
+            except Reconnect:
+                await self.ws.close(4000)
+                continue
     
     async def connect(self):
         # Stuff here means they will need to be changed everytime it reconnect
@@ -109,9 +120,6 @@ class Gateway:
     
         await self.send_json(payload)
     
-    async def reconnect_gateway(self, code: int):
-        await self.ws.close(4000)
-    
     async def received_events(self, data: Union[str, bytes]) -> None:
         if type(data) is bytes:
             self._buffer.extend(data)
@@ -120,6 +128,14 @@ class Gateway:
             data = self._inflator.decompress(self._buffer)
             self._buffer = bytearray()
         msg = json.loads(data)
+        op = msg.get('op')
+        data = msg.get('d')
+        seq = msg.get('s')
+        if seq is not None:
+            self._seq = seq
+        if op == OpCode.RECONNECT:
+            await self.reconnect_gateway()
+
 
 
     
@@ -129,5 +145,5 @@ class Gateway:
             await self.received_events(m.data)
         elif msg.type is aiohttp.WSMsgType.ERROR:
             raise msg.data
-        elif m.type in in (aiohttp.WSMsgType.CLOSED, aiohttp.WSMsgType.CLOSING, aiohttp.WSMsgType.CLOSE):
+        elif m.type in (aiohttp.WSMsgType.CLOSED, aiohttp.WSMsgType.CLOSING, aiohttp.WSMsgType.CLOSE):
             await self.ws.reconnect()
