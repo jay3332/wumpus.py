@@ -87,7 +87,7 @@ class Gateway:
         self.__token = None
 
     @classmethod
-    async def connect_from_client(cls, client, *, first=True, session_id=None, seq=None):
+    async def connect_from_client(cls, client, *, session_id=None, seq=None, resume=True):
         """
         Create a Gateway object from client
         """
@@ -101,6 +101,12 @@ class Gateway:
         gateway.shard_count = client._connection.shard_count
         gateway._session_id = session_id
         gateway._seq = seq
+
+        if resume:
+            await gateway.resume()
+            return gateway
+        
+        await gateway.identify()
 
         return gateway
 
