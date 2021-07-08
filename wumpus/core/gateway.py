@@ -26,9 +26,6 @@ class HeartbeatManager:
     Manages and acks heartbeats from and to Discord's gateway.
     """
     
-# now tell r we gonna have a _connection or not :C
-# connection is retrieved from gateway.connection  right(?)
-# oh ok then
     __slots__ = ('_gateway', '_connection', 'acked', '__task')
 
     def __init__(self, gateway, /) -> None:
