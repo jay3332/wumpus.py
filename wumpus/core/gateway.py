@@ -6,12 +6,7 @@ import zlib
 import asyncio
 import aiohttp
 
-<<<<<<< HEAD
-from enums import OpCode
-from typing import Union, Optional, Dict
-=======
 from typing import Union, Optional
->>>>>>> bcb10dde223f56ca9a28993f94930f2e06650a90
 
 from .enums import OpCode
 from ..typings import JSON
