@@ -137,24 +137,27 @@ class HTTPClient:
         await bucket.acquire()
         if not self._global_ratelimited.is_set():
             await self._global_ratelimited.wait()
-        for tries in range(self.MAX_RETRIES):
-            async with self.__session.request(method, route, params=params, js=data, headers=_headers) as resp:
-                bucket_remianing = resp.headers.get("X-RateLimit-Remaining")
-                data = await resp.json()
-                if int(bucket_remianing) == 0:
-                    await asyncio.sleep(float(resp.headers.get("X-RateLimit-Reset-After")))
-            if 300 > response.status >= 200:
-                return data
-            if resp.status == 429:
-                is_global = data.get("global", False)
-                if is_global is True:
-                    self._global_ratelimited.clear()
-                await asyncio.sleep(float(data.get("retry_after")))
-                if is_global:
-                    self._global_ratelimited.set()
-                continue
-            
-            # TODO: Handle all 40x status code and 50x status code
+        try:
+            for tries in range(self.MAX_RETRIES):
+                async with self.__session.request(method, route, params=params, js=data, headers=_headers) as resp:
+                    bucket_remianing = resp.headers.get("X-RateLimit-Remaining")
+                    data = await resp.json()
+                    if int(bucket_remianing) == 0:
+                        await asyncio.sleep(float(resp.headers.get("X-RateLimit-Reset-After")))
+                if 300 > response.status >= 200:
+                    return data
+                if resp.status == 429:
+                    is_global = data.get("global", False)
+                    if is_global is True:
+                        self._global_ratelimited.clear()
+                    await asyncio.sleep(float(data.get("retry_after")))
+                    if is_global:
+                        self._global_ratelimited.set()
+                    continue
+                
+                # TODO: Handle all 40x status code and 50x status code
+        finally:
+            bucket.release()
         
 
 
