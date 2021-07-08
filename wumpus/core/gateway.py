@@ -5,7 +5,7 @@ import asyncio
 import aiohttp
 
 from enums import OpCode
-from typing import Union
+from typing import Union, Optional
 
 from ..typings import JSON
 
@@ -28,7 +28,7 @@ class HeartbeatManager:
     
     __slots__ = ('_gateway', '_connection', 'acked', '__task')
 
-    def __init__(self, gateway, /) -> None:
+    def __init__(self, gateway: Gateway, /) -> None:
         self._gateway = gateway
         self._connection = gateway._connection
         self.acked = self._connection.loop.create_future()
@@ -75,7 +75,7 @@ class Gateway:
 
     # __slots__ = ('heartbeat_interval', 'ws', 'gateway', '_connection', '_keep_alive', '_inflator', '_buffer')
     
-    def __init__(self, ws):
+    def __init__(self, ws: aiohttp.ClientWebSocketResponse) -> None:
         self._ws = ws
         self._inflator = zlib.decompressobj()
         self._buffer = bytearray()
@@ -85,7 +85,7 @@ class Gateway:
         self.__token = None
 
     @classmethod
-    async def connect_from_client(cls, client, *, session_id=None, seq=None, resume=True):
+    async def connect_from_client(cls, client, *, session_id: Optional[int]=None, seq: Optional[int]=None, resume: bool=True):
         """
         Create a Gateway object from client
         """
