@@ -5,43 +5,47 @@ from typing import Any, Awaitable, Dict, Optional, TypeVar
 
 from ..typings.core import HTTPRequestMethod, JSON
 
-ART = TypeVar('ART', bound='APIRouter')
+RT = TypeVar('RT', bound='Router')
 
 
 __all__ = (
-    'APIRouter',
+    'Router',
     'HTTPClient'
 )
 
 
-class APIRouter:
+class Router:
     def __init__(
         self, 
         route: str = '', 
         /,
         *,
-        base_url: str, 
+        base: str, 
         http: HTTPClient
     ) -> None:
         self.__route: str = route.rstrip('/')
-        self.__base: str = base_url.rstrip('/')
+        self.__base: str = base.rstrip('/')
         self.__http: HTTPClient = http
 
     @property
     def route(self, /) -> str:
         return self.__route
 
-    def _construct(self: ART, new_route: str, /) -> ART:
+    @property
+    def url(self, /) -> str:
+        return self.__base + self.__route
+
+    def _construct(self: RT, new_route: str, /) -> RT:
         return self.__class__(new_route, base_url=self.__base, http=self.__http)
    
-    def __getattr__(self: ART, route: str, /) -> ART:
+    def __getattr__(self: RT, route: str, /) -> RT:
         if route in dir(self):
             return super().__getattr__(route)
 
         new_route = self.__route + '/' + route
         return self._construct(new_route)
 
-    def __call__(self: ART, id: int, /) -> ART:
+    def __call__(self: RT, id: int, /) -> RT:
         new_route = self.__route + '/' + str(id)
         return self._construct(new_route)
         
@@ -53,7 +57,7 @@ class APIRouter:
         params: Dict[str, Any] = None,
         data: JSON = None
     ) -> Awaitable[Optional[JSON]]:
-        return self.__http.request(method, self.__base + self.route, params=params, data=data)
+        return self.__http.request(method, self.url, params=params, data=data)
 
     def get(
         self,
@@ -73,9 +77,15 @@ class APIRouter:
 
 
 class HTTPClient:
-    def __init__(self, /):
+    __slots__ = ('__session', '__api_router')
+
+    def __init__(self, /, *, v: int = 9):
         self.__session: ClientSession = ClientSession()
-        self.__api_router: APIRouter = APIRouter()
+        self.__api_router: Router = Router(base=f'https://discord.com/api/v{v}', http=self)
+
+    @property
+    def api(self) -> Router:
+        return self.__api_router
 
     async def request(
         self,
@@ -85,5 +95,8 @@ class HTTPClient:
         *,
         params: Dict[str, Any],
         data: JSON
-    ) -> Awaitable[Optional[JSON]]:
+    ) -> Optional[JSON]:
         ...
+
+    async def close(self) -> None:
+        await self.__session.close()
