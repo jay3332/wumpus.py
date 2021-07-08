@@ -1,16 +1,16 @@
-import sys
-import zlib
 import asyncio
 import json
+import sys
+import zlib
 
+import aiohttp
 from typings import JSON
-from typings import Union
+from typing import Union
 
 from enums import OpCode
-import aiohttp
 
 __all__ = (
-    'Websocket',
+    'Reconnect',
     'HeartbeatManager',
     'Gateway'
 )
@@ -33,7 +33,7 @@ class HeartbeatManager:
     def __init__(self, gateway, /) -> None:
         self._gateway = gateway
         self._connection = gateway._connection
-        self.acked = None
+        self.acked = self._connection.loop.create_future()
     
     def start(self) -> None:
         self.acked = self._connection.loop.create_future()
@@ -49,6 +49,13 @@ class HeartbeatManager:
             await self.__task
         except asyncio.CancelledError:
             pass
+    
+    async def heartbeat(self) -> None:
+        payload = {
+            'op': OpCode.HEARTBEAT.value,
+            'd': self._gateway._seq,
+        }
+        await self._gateway.send_json(payload)
 
     async def heartbeat_task(self) -> None:
         while not self._connection.closed:
@@ -75,6 +82,9 @@ class Gateway:
         self._inflator = zlib.decompressobj()
         self._buffer = bytearray()
         self._keep_alive = None
+        self._seq = None
+        self._session_id = None
+        self.__token = None
 
     @classmethod
     async def connect_from_client(cls, client, *, first=True, session_id=None, seq=None):
@@ -91,6 +101,8 @@ class Gateway:
         gateway.shard_count = client._connection.shard_count
         gateway._session_id = session_id
         gateway._seq = seq
+
+        return gateway
 
     async def send_json(self, payload: JSON) -> None:
         await self._ws.send_str(json.dumps(payload))
@@ -156,7 +168,7 @@ class Gateway:
             if data is not True:
                 # We need to send a fresh Identify
                 self._seq = None
-                self._session.id = None
+                self._session_id = None
                 raise Reconnect(resume=False)
             raise Reconnect()
 
@@ -164,10 +176,10 @@ class Gateway:
 
     
     async def receive_events(self):
-        m = await self.ws.receive()
-        if msg.type is aiohttp.WSMsgType.TEXT or msg.type is aiohttp.WSMsgType.BINARY:
+        m = await self._ws.receive()
+        if m.type is aiohttp.WSMsgType.TEXT or m.type is aiohttp.WSMsgType.BINARY:
             await self.received_events(m.data)
-        elif msg.type is aiohttp.WSMsgType.ERROR:
-            raise msg.data
+        elif m.type is aiohttp.WSMsgType.ERROR:
+            raise m.data
         elif m.type in (aiohttp.WSMsgType.CLOSED, aiohttp.WSMsgType.CLOSING, aiohttp.WSMsgType.CLOSE):
             raise Reconnect()
