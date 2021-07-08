@@ -9,13 +9,11 @@ from ..typings import TimestampStyle
 DISCORD_EPOCH: int = 1420070400000
 
 
-T = TypeVar('T', bound='Snowflake')
 DT = TypeVar('DT', bound='Timestamp')
 
 
 __all__ = (
     'Timestamp',
-    'Snowflake',
     'deconstruct_snowflake'
 )
 
@@ -57,6 +55,7 @@ class Timestamp(datetime):
 
 
 class _DeconstructedSnowflake(NamedTuple):
+    id: int
     created_at: Timestamp
     worker_id: int
     process_id: int
@@ -64,48 +63,41 @@ class _DeconstructedSnowflake(NamedTuple):
 
 
 def deconstruct_snowflake(snowflake: int) -> _DeconstructedSnowflake:
-    increment = snowflake & ((1 << 12) - 1)
-    snowflake >>= 12
-    process = snowflake & ((1 << 5) - 1)
-    snowflake >>= 5
-    worker = snowflake & ((1 << 5) - 1)
-    snowflake >>= 5
-    timestamp = (snowflake + 1420070400000) / 1000
+    buffer = snowflake
+    increment = buffer & ((1 << 12) - 1)
+    buffer >>= 12
+    process = buffer & ((1 << 5) - 1)
+    buffer >>= 5
+    worker = buffer & ((1 << 5) - 1)
+    buffer >>= 5
+    timestamp = (buffer + 1420070400000) / 1000
 
     return _DeconstructedSnowflake(
+        snowflake,
         Timestamp.utcfromtimestamp(timestamp),
         worker, process, increment
     )
 
 
-
-class Snowflake(int):
-    def __new__(cls: Type[T], value: int) -> T:
-        self = super().__new__(value)
-
-        deconstructed = deconstruct_snowflake(value)
-        self.created_at = deconstructed.created_at
-        self.process_id = deconstructed.process_id
-        self.worker_id = deconstructed.worker_id
-        self.increment = deconstructed.increment
-
-        return self
-
-    def __repr__(self) -> str:
-        return f'Snowflake({self})'
-
-
 class Object:
     def __init__(self, id: int, /) -> None:
-        if not isinstance(id, Snowflake):
-            id = Snowflake(id)
+        self.__id: int = id
+        self.__dc: _DeconstructedSnowflake = None
 
-        self.__id: Snowflake = id
+    def __deconstruct(self, /) -> None:
+        if self.__dc is None:
+            self.__dc = deconstruct_snowflake(self.id)
         
     @property
-    def id(self, /) -> Snowflake:
+    def id(self, /) -> int:
         return self.__id
 
     @property
     def created_at(self, /) -> Timestamp:
-        return self.__id.created_at
+        self.__deconstruct()
+        return self.__dc.created_at
+
+    @property
+    def deconstructed(self, /) -> _DeconstructedSnowflake:
+        self.__deconstruct()
+        return self.__dc
