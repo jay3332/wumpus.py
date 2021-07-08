@@ -149,22 +149,22 @@ class Gateway:
             data = self._inflator.decompress(self._buffer)
             self._buffer = bytearray()
         msg = json.loads(data)
-        op = msg.get('op')
+        op = OpCode(msg.get('op'))
         data = msg.get('d')
         seq = msg.get('s')
         if seq is not None:
             self._seq = seq
-        if op == OpCode.RECONNECT.value:
+        if op is OpCode.RECONNECT:
             raise Reconnect()
-        elif op == OpCode.HEARTBEAT_ACK.value:
+        elif op is OpCode.HEARTBEAT_ACK:
             self._keep_alive.ack()
-        elif op == OpCode.HEARTBEAT.value:
+        elif op is OpCode.HEARTBEAT:
             await self._keep_alive.heartbeat()
-        elif op == OpCode.HELLO.value:
+        elif op is OpCode.HELLO:
             self.heartbeat_interval = data['heartbeat_interval'] / 1000 # For seconds
             self._keep_alive = HeartbeatManager(self)
             await self._keep_alive.heartbeat()
-        elif op == OpCode.INVALIDATE_SESSION.value:
+        elif op is OpCode.INVALIDATE_SESSION:
             if data is not True:
                 # We need to send a fresh Identify
                 self._seq = None
