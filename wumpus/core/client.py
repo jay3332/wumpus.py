@@ -1,3 +1,4 @@
+from collections import defaultdict
 from asyncio import get_event_loop, AbstractEventLoop
 from typing import Callable, Dict, List, NamedTuple, Union, overload
 
@@ -11,18 +12,20 @@ __all__ = (
 
 
 class WeakListener(NamedTuple):
-    event: str
     callback: EmitterCallback
     count: int = None 
 
 
 class Emitter:
     def __init__(self):
-        self.__direct_listeners: Dict[str, EmitterCallback]
-        self.__listeners: List[WeakListener] = []
+        self.__direct_listeners: Dict[str, EmitterCallback] = {}
+        self.__listeners: Dict[str, List[WeakListener]] = defaultdict(list)
 
-    def _add_direct_listener(self, event: str, callback: EmitterCallback) -> None:
+    def _add_direct_listener(self, event: str, callback: EmitterCallback, /) -> None:
         self.__direct_listeners[event] = callback
+
+    def _add_weak_listener(self, event: str, callback: EmitterCallback, /, *, count: int = None) -> None:
+        self.__listeners[event].append(WeakListener(callback, count=count))
 
     @overload
     def event(self, event: str) -> Callable[[EmitterCallback], EmitterCallback]:

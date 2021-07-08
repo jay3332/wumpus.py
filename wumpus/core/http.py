@@ -75,6 +75,28 @@ class Router:
     ) -> Awaitable[Optional[JSON]]:
         return self.request('POST', data=data, params=params)
 
+    def put(
+        self, 
+        data: JSON = None,
+        /
+    ) -> Awaitable[Optional[JSON]]:
+        return self.request('PUT', data=data)
+
+    def patch(
+        self, 
+        data: JSON = None,
+        /
+    ) -> Awaitable[Optional[JSON]]:
+        return self.request('PATCH', data=data)
+    
+    def delete(
+        self, 
+        data: JSON = None,
+        /
+    ) -> Awaitable[Optional[JSON]]:
+        return self.request('DELETE', data=data)
+
+
 
 class HTTPClient:
     __slots__ = ('__session', '__api_router')

@@ -1,13 +1,14 @@
-import asyncio
-import json
 import sys
+import json
 import zlib
-
+import asyncio
 import aiohttp
-from typings import JSON
-from typing import Union
 
 from enums import OpCode
+from typing import Union
+
+from ..typings import JSON
+
 
 __all__ = (
     'Reconnect',
