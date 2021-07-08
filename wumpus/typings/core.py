@@ -1,4 +1,4 @@
-from typing import Any, Awaitable, Callable, Dict, Literal, Tuple, Union
+from typing import Any, Awaitable, Dict, Literal, Protocol, Tuple, Union
 
 
 __all__: Tuple[str, ...] = (
@@ -6,7 +6,9 @@ __all__: Tuple[str, ...] = (
     'Snowflake',
     'HTTPVersion',
     'GatewayVersion',
-    'HTTPRequestMethod'
+    'HTTPRequestMethod',
+    'TimestampStyle',
+    'EmitterCallback'
 )
 
 
@@ -14,9 +16,14 @@ __all__: Tuple[str, ...] = (
 JSON = Dict[str, Any]  # This may be changed in the future
 Snowflake = int  # Type alias for readability
 
-EmitterCallback = Callable[[Any, ...], Union[Awaitable[Any], Any]]
-
 HTTPVersion = Literal[3, 4, 5, 6, 7, 8, 9]
 GatewayVersion = Literal[4, 5, 6, 7, 8, 9]
 
 HTTPRequestMethod = Literal['GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS']
+
+TimestampStyle = Literal['f', 'F', 'd', 'D', 't', 'T', 'R']
+
+
+class EmitterCallback(Protocol):
+    def __call__(self, *args: Any, **kwargs: Any) -> Union[Awaitable[Any], Any]:
+        ...

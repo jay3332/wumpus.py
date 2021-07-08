@@ -1,5 +1,5 @@
 from asyncio import get_event_loop, AbstractEventLoop
-from typing import Dict, List, NamedTuple, Union, overload
+from typing import Callable, Dict, List, NamedTuple, Union, overload
 
 from ..typings.core import HTTPVersion, GatewayVersion, EmitterCallback
 
@@ -10,7 +10,7 @@ __all__ = (
 )
 
 
-class WeakListener(typing.NamedTuple):
+class WeakListener(NamedTuple):
     event: str
     callback: EmitterCallback
     count: int = None 
