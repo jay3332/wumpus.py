@@ -1,22 +1,18 @@
 import sys
 import asyncio
+import json
+
+from typings import JSON
+from typings import Union
 
 from enums import OpCode
-from aiohttp import ClientWebSocketResponse
-
+import aiohttp
 
 __all__ = (
     'Websocket',
     'HeartbeatManager',
     'Gateway'
 )
-
-
-class Websocket(ClientWebSocketResponse):
-    """
-    Represents a websocket connection to Discord's gateway.
-    """
-
 
 
 class HeartbeatManager:
@@ -27,11 +23,11 @@ class HeartbeatManager:
 # now tell r we gonna have a _connection or not :C
 # connection is retrieved from gateway.connection  right(?)
 # oh ok then
-    __slots__ = ('_gateway', '_connection', 'acked')
+    __slots__ = ('_gateway', '_connection', 'acked', '__task')
 
-    def __init__(self, gateway, connection, /) -> None:
+    def __init__(self, gateway, /) -> None:
         self._gateway = gateway
-        self._connection = gateway.connection
+        self._connection = gateway._connection
         self.acked = None
     
     def start(self) -> None:
@@ -67,7 +63,7 @@ class Gateway:
     Represents the gateway clients use.
     """
 
-    __slots__ = ('heartbeat_interval',)
+    __slots__ = ('heartbeat_interval', 'ws', 'gateway', '_connection', '_keep_alive', '_inflator', '_buffer')
     
     @classmethod
     async def connect_from_client(cls, client):
@@ -77,16 +73,18 @@ class Gateway:
         cls()
         # TODO: Add all the attributes needed here
         # Stuff here means that it will stay as it is for the whole time
-
+        self._inflator = zlib.decompressobj()
         await self.connect()
     
     async def connect(self):
         # Stuff here means they will need to be changed everytime it reconnect
         self.ws = await self._connection.session.ws_connect(self.gateway)
+        self._buffer = bytearray()
+        self._keep_alive = HeartbeatManager(self)
         await self.receive_event()
-    
-    
 
+    async def send_json(self, payload: JSON) -> None:
+        await self.ws.send_str(json.dumps(payload))
     
     async def identify(self):
         payload = {
@@ -109,14 +107,27 @@ class Gateway:
 
         # TODO: Implement intent thing
     
+        await self.send_json(payload)
+    
     async def reconnect_gateway(self, code: int):
         await self.ws.close(4000)
     
-    async def receive_events(self): ...# igtg
-    # can you clone from github 
-    # what 
-    # you wont have access if i leave
-    # so you have to clone from github 
-    # fine bad # ok lemme just create repo and the nbyer
-    # :ccc
-    # make amogus repo when >:(
+    async def received_events(self, data: Union[str, bytes]) -> None:
+        if type(data) is bytes:
+            self._buffer.extend(data)
+            if len(data) < 4 or data[-4:] != b'\x00\x00\xff\xff':
+                return
+            data = self._inflator.decompress(self._buffer)
+            self._buffer = bytearray()
+        msg = json.loads(data)
+
+
+    
+    async def receive_events(self):
+        m = await self.ws.receive()
+        if msg.type is aiohttp.WSMsgType.TEXT or msg.type is aiohttp.WSMsgType.BINARY:
+            await self.received_events(m.data)
+        elif msg.type is aiohttp.WSMsgType.ERROR:
+            raise msg.data
+        elif m.type in in (aiohttp.WSMsgType.CLOSED, aiohttp.WSMsgType.CLOSING, aiohttp.WSMsgType.CLOSE):
+            await self.ws.reconnect()
