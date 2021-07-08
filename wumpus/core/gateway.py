@@ -5,7 +5,7 @@ import asyncio
 import aiohttp
 
 from enums import OpCode
-from typing import Union, Optional
+from typing import Union, Optional, Dict
 
 from ..typings import JSON
 
@@ -154,7 +154,7 @@ class Gateway:
             self._buffer = bytearray()
         msg = json.loads(data)
         op = OpCode(msg.get('op'))
-        data = msg.get('d')
+        data: Dict[str, Union[int, str]] = msg.get('d')
         seq = msg.get('s')
         if seq is not None:
             self._seq = seq
@@ -175,6 +175,13 @@ class Gateway:
                 self._session_id = None
                 raise Reconnect(resume=False)
             raise Reconnect()
+        elif op is OpCode.DISPATCH:
+            event = msg.get('t')
+            if event == "READY":
+                self._session_id == data.get('session_id')
+                # TODO: Handle user and application info
+        else:
+            raise ...
 
 
 
