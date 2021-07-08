@@ -84,6 +84,7 @@ class Gateway:
         self._seq = None
         self._session_id = None
         self.__token = None
+        self._connection = None
 
     @classmethod
     async def connect_from_client(cls, client, *, session_id: Optional[int]=None, seq: Optional[int]=None, resume: bool=True):
@@ -94,6 +95,7 @@ class Gateway:
         ws = await client._connection.http.session.ws_connect(_gateway)
         gateway = cls(ws)
         gateway.__token = client._connection.__token
+        gateway._connection = client._connection
         await gateway.receive_events() # For Hello event
         gateway.gateway = gateway
         gateway.shard_id = client._connection.shard_id
