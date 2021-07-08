@@ -88,11 +88,11 @@ class Gateway:
                 continue
     
     async def connect(self):
-        # Stuff here means they will need to be changed everytime it reconnect
-        self.ws = await self._connection.session.ws_connect(self.gateway)
+        self.gateway = await self._connection.http.get_gateway_bot()
+        self.ws = await self._connection.http.session.ws_connect(self.gateway)
         self._buffer = bytearray()
         self._keep_alive = HeartbeatManager(self)
-        await self.receive_event()
+        await self.receive_event() # For Hello event
 
     async def send_json(self, payload: JSON) -> None:
         await self.ws.send_str(json.dumps(payload))
@@ -134,7 +134,7 @@ class Gateway:
         if seq is not None:
             self._seq = seq
         if op == OpCode.RECONNECT:
-            await self.reconnect_gateway()
+            raise Reconnect()
 
 
 
@@ -146,4 +146,4 @@ class Gateway:
         elif msg.type is aiohttp.WSMsgType.ERROR:
             raise msg.data
         elif m.type in (aiohttp.WSMsgType.CLOSED, aiohttp.WSMsgType.CLOSING, aiohttp.WSMsgType.CLOSE):
-            await self.ws.reconnect()
+            raise Reconnect()
