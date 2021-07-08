@@ -1,20 +1,24 @@
 from __future__ import annotations
 
-from typing import NamedTuple, Optional, TypeVar, Type, overload
+from abc import ABC, abstractmethod
+from typing import Any, Dict, NamedTuple, Optional, TypeVar, Type, overload
 from datetime import datetime, timezone
 
-from ..typings import TimestampStyle
+from ..typings.core import TimestampStyle, Snowflake
 
 
 DISCORD_EPOCH: int = 1420070400000
 
 
+T = TypeVar('T', bound='Object')
 DT = TypeVar('DT', bound='Timestamp')
 
 
 __all__ = (
     'Timestamp',
-    'deconstruct_snowflake'
+    'deconstruct_snowflake',
+    'Object',
+    'NativeObject'
 )
 
 
@@ -55,7 +59,7 @@ class Timestamp(datetime):
 
 
 class _DeconstructedSnowflake(NamedTuple):
-    id: int
+    id: Snowflake
     created_at: Timestamp
     worker_id: int
     process_id: int
@@ -80,16 +84,17 @@ def deconstruct_snowflake(snowflake: int) -> _DeconstructedSnowflake:
 
 
 class Object:
-    def __init__(self, id: int, /) -> None:
-        self.__id: int = id
-        self.__dc: _DeconstructedSnowflake = None
+    def __init__(self, id: Snowflake = None, /) -> None:
+        if id is not None:
+            self.__id: Snowflake = id
+            self.__dc: _DeconstructedSnowflake = None
 
     def __deconstruct(self, /) -> None:
         if self.__dc is None:
             self.__dc = deconstruct_snowflake(self.id)
         
     @property
-    def id(self, /) -> int:
+    def id(self, /) -> Snowflake:
         return self.__id
 
     @property
@@ -101,3 +106,30 @@ class Object:
     def deconstructed(self, /) -> _DeconstructedSnowflake:
         self.__deconstruct()
         return self.__dc
+
+    def __eq__(self: T, other: T, /) -> bool:
+        return self.id == other.id and isinstance(other, self.__class__)
+
+    def __ne__(self: T, other: T, /) -> bool:
+        return not self.__eq__(other)
+
+    def __int__(self, /) -> int:
+        return self.id
+
+    def __repr__(self, /) -> str:
+        return f'<{self.__class__.__name__} id={self.id}>'
+
+
+class NativeObject(Object, ABC):
+    __slots__ = ('_connection', '_last_received_data', '__id', '__dc')
+
+    def __init__(self):
+        super().__init__()
+
+    def _put_snowflake(self, snowflake: Snowflake) -> None:
+        # This data is usually received later
+        Object.__init__(self, snowflake)
+
+    @abstractmethod
+    def _load_data(self, data: Any) -> None:
+        raise NotImplementedError

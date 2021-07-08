@@ -14,3 +14,13 @@ class OpCode(Enum):
     INVALIDATE_SESSION = 9
     HELLO              = 10
     HEARTBEAT_ACK      = 11
+
+
+class PremiumType(Enum):
+    NONE          = 0
+    NITRO_CLASSIC = 1
+    NITRO         = 2
+
+    # Aliases
+    CLASSIC       = 1
+    NITRO_REGULAR = 2
