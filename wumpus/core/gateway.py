@@ -1,13 +1,14 @@
 import sys
 import zlib
 import asyncio
+import aiohttp
 import json
 
-from typings import JSON
-from typings import Union
-
 from enums import OpCode
-import aiohttp
+from typing import Union
+
+from ..typings import JSON
+
 
 __all__ = (
     'Websocket',
