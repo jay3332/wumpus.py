@@ -1,6 +1,14 @@
 from inspect import isawaitable
 from typing import Any, Awaitable, Callable, Union, TypeVar, overload
 
+from .core.objects import deconstruct_snowflake
+
+
+__all__ = (
+    'maybe_coro',
+    'deconstruct_snowflake'
+)
+
 
 RT = TypeVar('RT', bound=Union[Any, Awaitable[Any]])
 

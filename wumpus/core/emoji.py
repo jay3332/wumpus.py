@@ -1,9 +1,11 @@
 from .connection import Connection
+from .objects import NativeObject
 from ..typings import Snowflake
-from typing import List, Optional, Union, Any
-from .object import Object
 
-class Emoji(Object):
+from typing import Any, List
+
+
+class Emoji(NativeObject):
     """
     Represents a custom Emoji.
     
@@ -17,9 +19,8 @@ class Emoji(Object):
     managed: :class:`bool`
     animated: :class:`bool`
     available: :class:`bool`
-
-
     """
+
     def __init__(self, connection: Connection, data: ..., /) -> None:
         self._connection = connection
         self._load_data(data)
