@@ -1,7 +1,9 @@
 from collections import defaultdict
 from asyncio import get_event_loop, AbstractEventLoop
-from typing import Callable, Dict, List, NamedTuple, Union, overload
+from typing import Callable, Dict, List, NamedTuple, Optional, Union, overload
 
+from .http import Router
+from .connection import Connection
 from ..typings.core import HTTPVersion, GatewayVersion, EmitterCallback
 
 
@@ -65,9 +67,14 @@ class Client(Emitter):
         loop: AbstractEventLoop = None
     ) -> None:
         super().__init__()
+
         self._loop: AbstractEventLoop = loop or get_event_loop() 
-        
+        self._connection: Connection = None
 
     @property
     def loop(self) -> AbstractEventLoop:
         return self._loop
+
+    @property
+    def api(self) -> Optional[Router]:
+        return self._connection.api if self._connection else None

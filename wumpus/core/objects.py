@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, NamedTuple, Optional, TypeVar, Type, overload
+from typing import Any, NamedTuple, Optional, TypeVar, Type, overload
 from datetime import datetime, timezone
 
 from ..typings.core import TimestampStyle, Snowflake

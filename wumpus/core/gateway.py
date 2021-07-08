@@ -1,12 +1,14 @@
+from __future__ import annotations
+
 import sys
 import json
 import zlib
 import asyncio
 import aiohttp
 
-from enums import OpCode
 from typing import Union, Optional
 
+from .enums import OpCode
 from ..typings import JSON
 
 
@@ -20,6 +22,7 @@ __all__ = (
 class Reconnect(Exception):
     def __init__(self, resume=True):
         self.resume = resume
+
 
 class HeartbeatManager:
     """
@@ -61,12 +64,10 @@ class HeartbeatManager:
             try:
                 await asyncio.wait_for(self.acked, timeout=3)
             except asyncio.TimeoutError:
-                self.stop()
+                await self.stop()
                 raise Reconnect()
             await asyncio.sleep(self._gateway.heartbeat_interval)
 
-
-    
 
 class Gateway:
     """

@@ -61,7 +61,7 @@ class PartialUser(NativeObject):
         return self.tag
 
     def __repr__(self) -> str:
-        return f'<User name={self.name!r} discriminator={self.discriminator!r} id={self.id}>'
+        return f'<{self.__class__.__name__} name={self.name!r} discriminator={self.discriminator!r} id={self.id}>'
 
     def __format__(self, format: UserFormat) -> str:
         format = format.lower()
