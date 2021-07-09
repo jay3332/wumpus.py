@@ -99,6 +99,8 @@ class Timestamp(datetime):
             else:
                 _SNOWFLAKE_GEN_INCREMENT = 0
 
+        return buffer
+
 
 class _DeconstructedSnowflake(NamedTuple):
     id: Snowflake
