@@ -21,6 +21,8 @@ __all__ = (
     'NativeObject'
 )
 
+_SNOWFLAKE_GEN_INCREMENT = 0
+
 
 class Timestamp(datetime):
     __slots__ = datetime.__slots__
@@ -56,6 +58,29 @@ class Timestamp(datetime):
         naive = super().utcfromtimestamp(timestamp)
         return naive.replace(tzinfo=timezone.utc)
 
+    def to_snowflake(
+        self,
+        /, 
+        *,
+        worker_id: int = 1, 
+        process_id: int = 0,
+        increment: int = None
+    ) -> Snowflake:
+        if increment is None:
+            incr = _SNOWFLAKE_GEN_INCREMENT
+        else:
+            incr = increment
+        
+        buffer = ((self.timestamp() * 1000) - DISCORD_EPOCH) 
+        buffer = (buffer << 5) | worker_id
+        buffer = (buffer << 5) | process_id
+        buffer = (buffer << 12) | incr
+
+        if increment is None:
+            if incr < 4096:
+                _SNOWFLAKE_GEN_INCREMENT += 1
+            else:
+                _SNOWFLAKE_GEN_INCREMENT = 0
 
 
 class _DeconstructedSnowflake(NamedTuple):
