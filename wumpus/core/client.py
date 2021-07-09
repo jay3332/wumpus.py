@@ -3,6 +3,7 @@ from asyncio import get_event_loop, AbstractEventLoop
 from typing import Callable, Dict, List, NamedTuple, Optional, Union, overload
 
 from .http import Router
+from .user import ClientUser
 from .connection import Connection
 from ..typings.core import HTTPVersion, GatewayVersion, EmitterCallback
 
@@ -80,6 +81,10 @@ class Client(Emitter):
     @property
     def api(self) -> Optional[Router]:
         return self._connection.api if self._connection else None
+
+    @property
+    def user(self) -> ClientUser:
+        return self._connection.user
 
     def _establish_connection(self) -> None:
         self._connection = Connection(self._loop)
