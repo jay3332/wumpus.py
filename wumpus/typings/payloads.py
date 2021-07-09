@@ -1,5 +1,16 @@
-from typing import Literal, Optional, TypedDict
-from . import Snowflake
+from __future__ import annotations
+
+from typing import List, Literal, Optional, TypedDict
+from . import Snowflake, JSON
+
+
+class ReadyEventPayload(TypedDict, total=False):
+    v: int
+    user: UserPayload
+    guilds: List[...]
+    session_id: str
+    shard: List[int]
+    application: JSON
 
 
 class PartialUserPayload(TypedDict, total=False):

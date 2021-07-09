@@ -5,6 +5,8 @@ from asyncio import AbstractEventLoop
 from .http import HTTPClient, Router
 from .user import ClientUser
 
+from ..typings.payloads import UserPayload
+
 
 __all__ = (
     'Connection',
@@ -62,9 +64,12 @@ class Connection:
 
         self._http = HTTPClient(v=v, token=token)
 
-    async def update_user(self, /) -> None:
-        data = await self.api.users.me.get()
+    def patch_current_user(self, data: UserPayload, /) -> None:
         if self._user is None:
             self._user = ClientUser(self, data)
         else:
             self._user._load_data(data)
+
+    async def update_user(self, /) -> None:
+        data = await self.api.users.me.get()
+        self.patch_current_user(data)
