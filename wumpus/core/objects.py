@@ -83,6 +83,8 @@ class Timestamp(datetime):
         process_id: int = 0,
         increment: int = None
     ) -> Snowflake:
+        global _SNOWFLAKE_GEN_INCREMENT
+
         if increment is None:
             incr = _SNOWFLAKE_GEN_INCREMENT
         else:
@@ -123,7 +125,9 @@ def deconstruct_snowflake(snowflake: int) -> _DeconstructedSnowflake:
     return _DeconstructedSnowflake(
         snowflake,
         Timestamp.utcfromtimestamp(timestamp),
-        worker, process, increment
+        worker, 
+        process,
+        increment
     )
 
 
@@ -134,6 +138,9 @@ class Object:
             self.__dc: _DeconstructedSnowflake = None
 
     def __deconstruct(self, /) -> None:
+        if self.id is None:
+            raise ValueError('cannot deconstruct unknown snowflakes')
+
         if self.__dc is None:
             self.__dc = deconstruct_snowflake(self.id)
         
