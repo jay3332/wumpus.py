@@ -1,16 +1,16 @@
 from __future__ import annotations
 
-import sys
-import json
-import zlib
 import asyncio
+import json
+import sys
+import zlib
+from typing import Optional, Union
+
 import aiohttp
 
-from typing import Union, Optional
-
-from .enums import OpCode
 from ..typings import JSON
-
+from .enums import OpCode
+from .user import ClientUser
 
 __all__ = (
     'Reconnect',
@@ -182,6 +182,8 @@ class Gateway:
             event = msg.get('t')
             if event == "READY":
                 self._session_id == data.get('session_id')
+                user = ClientUser._load_data(data.get('user'))
+                self._connection._user = user
                 # TODO: Handle user and application info
         else:
             raise ...
