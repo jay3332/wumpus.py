@@ -58,6 +58,23 @@ class Timestamp(datetime):
         naive = super().utcfromtimestamp(timestamp)
         return naive.replace(tzinfo=timezone.utc)
 
+    @classmethod
+    def from_datetime(cls: Type[DT], dt: datetime) -> DT:
+        return cls.utcfromtimestamp(dt.timestamp())
+
+    def to_datetime(self, /) -> datetime:
+        args = (
+            self.year,
+            self.month,
+            self.day,
+            self.hour,
+            self.minute,
+            self.second,
+            self.microsecond,
+            self.tzinfo
+        )
+        return datetime(*args, fold=self.fold)
+
     def to_snowflake(
         self,
         /, 
@@ -77,7 +94,7 @@ class Timestamp(datetime):
         buffer = (buffer << 12) | incr
 
         if increment is None:
-            if incr < 4096:
+            if incr < 4095:
                 _SNOWFLAKE_GEN_INCREMENT += 1
             else:
                 _SNOWFLAKE_GEN_INCREMENT = 0
