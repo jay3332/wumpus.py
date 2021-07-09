@@ -60,16 +60,18 @@ class Client(Emitter):
     def __init__(
         self,
         *,
-        intents: Intents = None,
-        allowed_mentions: AllowedMentions = None,
+        # intents: Intents = None,
+        # allowed_mentions: AllowedMentions = None,
         http_version: HTTPVersion = 9,
         gateway_version: GatewayVersion = 9,
         loop: AbstractEventLoop = None
     ) -> None:
         super().__init__()
-
-        self._loop: AbstractEventLoop = loop or get_event_loop() 
+        self._loop: AbstractEventLoop = loop or get_event_loop()
         self._connection: Connection = None
+
+        self._http_version: int = http_version
+        self._gateway_version: int = gateway_version
 
     @property
     def loop(self) -> AbstractEventLoop:
@@ -78,3 +80,11 @@ class Client(Emitter):
     @property
     def api(self) -> Optional[Router]:
         return self._connection.api if self._connection else None
+
+    def _establish_connection(self) -> None:
+        self._connection = Connection(self._loop)
+
+    async def login(self, token: str = None, /) -> None:
+        self._establish_connection()
+        self._connection.establish_http(token, v=self._http_version)
+        await self._connection.update_user()

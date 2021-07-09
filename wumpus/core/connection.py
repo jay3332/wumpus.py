@@ -1,7 +1,9 @@
 import re
 
 from asyncio import AbstractEventLoop
+
 from .http import HTTPClient, Router
+from .user import ClientUser
 
 
 __all__ = (
@@ -10,7 +12,7 @@ __all__ = (
 
 
 class Connection:
-    __slots__ = ('_loop', '_http', '_ws', '__token')
+    __slots__ = ('_loop', '_http', '_ws', '_user', '__token')
 
     TOKEN_REGEX: re.Pattern = re.compile(
         r'([a-zA-Z0-9]{24}\.[a-zA-Z0-9]{6}\.[a-zA-Z0-9_\-]{27}|mfa\.[a-zA-Z0-9_\-]{84})'
@@ -19,6 +21,7 @@ class Connection:
     def __init__(self, loop: AbstractEventLoop) -> None:
         self._loop: AbstractEventLoop = loop
         self._http: HTTPClient = None
+        self._user: ClientUser = None
 
         self.__token: str = None
 
@@ -33,6 +36,14 @@ class Connection:
     @property
     def api(self) -> Router:
         return self._http.api
+
+    @property
+    def user(self) -> ClientUser:
+        return self._user
+
+    @property
+    def id(self) -> int:
+        return None if self.user is None else self.user.id
 
     def put_token(self, token: str, /) -> None:
         # check here rather than throw a bad request,
@@ -50,3 +61,10 @@ class Connection:
             self.put_token(token)
 
         self._http = HTTPClient(v=v, token=token)
+
+    async def update_user(self, /) -> None:
+        data = await self.api.users.me.get()
+        if self._user is None:
+            self._user = ClientUser(self, data)
+        else:
+            self._user._load_data(data)

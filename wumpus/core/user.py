@@ -166,3 +166,6 @@ class ClientUser(PartialUser):
             payload['avatar'] = avatar
 
         return await self._connection.api.users.me.patch(payload)
+
+    async def update(self, /) -> None:
+        await self._connection.update_user()
