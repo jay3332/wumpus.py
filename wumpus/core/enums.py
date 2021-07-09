@@ -1,6 +1,12 @@
 from enum import Enum
 
 
+__all__ = (
+    'OpCode',
+    'PremiumType'
+)
+
+
 class OpCode(Enum):
     DISPATCH           = 0
     HEARTBEAT          = 1

@@ -43,6 +43,9 @@ class Router:
         return self.__class__(new_route, base_url=self.__base, http=self.__http)
    
     def __getattr__(self: RT, route: str, /) -> RT:
+        if route == 'me':
+            route = '@me'
+
         new_route = self.__route + '/' + route
         return self._construct(new_route)
 

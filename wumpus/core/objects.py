@@ -121,15 +121,29 @@ class Object:
 
 
 class NativeObject(Object, ABC):
-    __slots__ = ('_connection', '_last_received_data', '__id', '__dc')
+    __slots__ = ('__object_cached__', '_connection', '_last_received_data', '__id', '__dc')
 
     def __init__(self):
         super().__init__()
+        self.__object_cached__: bool = True
 
     def _put_snowflake(self, snowflake: Snowflake) -> None:
         # This data is usually received later
         Object.__init__(self, snowflake)
 
     @abstractmethod
-    def _load_data(self, data: Any) -> None:
+    def _load_data(self, data: Any, /) -> None:
         raise NotImplementedError
+
+    @abstractmethod
+    def _copy(self: T) -> T:
+        raise NotImplementedError
+
+    def _copy_and_patch(self: T, data: Any, /) -> T:
+        old = self._copy()
+        old.__object_cached__ = False
+        self._load_data(data)
+        return old
+
+    def __copy__(self: T) -> T:
+        return self._copy()
