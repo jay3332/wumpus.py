@@ -74,7 +74,7 @@ def deconstruct_snowflake(snowflake: int) -> _DeconstructedSnowflake:
     buffer >>= 5
     worker = buffer & ((1 << 5) - 1)
     buffer >>= 5
-    timestamp = (buffer + 1420070400000) / 1000
+    timestamp = (buffer + DISCORD_EPOCH) / 1000
 
     return _DeconstructedSnowflake(
         snowflake,
