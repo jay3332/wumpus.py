@@ -1,6 +1,7 @@
 from .asset import Asset
 from .objects import NativeObject
 from .connection import Connection
+from .messageable import Messageable
 
 from ..utils import _bytes_to_image_data
 from ..typings.payloads import PartialUserPayload, UserPayload
@@ -118,9 +119,6 @@ class PartialUser(NativeObject):
 class ClientUser(PartialUser):
     __slots__ = PartialUser.__slots__
 
-    def __init__(self, connection: Connection, /, data: UserPayload) -> None:
-        super().__init__(connection, data)
-
     def _load_data(self, data: UserPayload) -> None:
         super()._load_data(data)
         self._mfa_enabled = data.get('mfa_enabled', False)
@@ -169,3 +167,15 @@ class ClientUser(PartialUser):
 
     async def update(self, /) -> None:
         await self._connection.update_user()
+
+
+class User(PartialUser, Messageable):
+    __slots__ = PartialUser.__slots__
+
+    def _load_data(self, data: PartialUserPayload) -> None:
+        super()._load_data(data)
+
+    async def create_dm(self, /) -> ...:
+        await self._connection.api.users.me.channels.post({
+            'recipient_id': self.id
+        })
