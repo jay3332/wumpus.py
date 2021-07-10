@@ -92,7 +92,7 @@ class Asset(BaseAsset):
 
     @property
     def url(self, /) -> str:
-        if not len(self._params):
+        if not len(self._info):
             return self.base_url
 
         url = self.base_url + '.' + self.format
