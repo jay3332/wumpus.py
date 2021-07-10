@@ -87,7 +87,7 @@ class Connection:
         self.__token = token
 
     def patch_current_user(self, data: UserPayload, /) -> None:
-        from .user import ClientUser
+        from ..models.user import ClientUser
         
         if self._user is None:
             self._user = ClientUser(self, data)

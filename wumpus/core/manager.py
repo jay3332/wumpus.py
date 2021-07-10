@@ -2,9 +2,10 @@ from abc import ABC, abstractmethod
 from typing import Callable, Dict, Generic, Iterable, TypeVar
 
 from .connection import Connection
-from .user import User
 
 from ..errors import NotFound
+
+from ..models.user import User
 
 from ..typings import Snowflake
 from ..typings.payloads import PartialUserPayload

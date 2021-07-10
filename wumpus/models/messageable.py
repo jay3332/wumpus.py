@@ -1,7 +1,7 @@
 from abc import ABC
 from typing import Generic, TypeVar
 
-from .connection import Connection
+from ..core.connection import Connection
 from .objects import NativeObject
 
 from ..typings import Snowflake

@@ -1,6 +1,7 @@
 from .asset import Asset
 from .objects import Object, NativeObject
-from .connection import Connection
+
+from ..core.connection import Connection
 from ..typings import JSON, Snowflake
 
 from typing import Any, List, Type, TypeVar

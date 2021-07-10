@@ -1,7 +1,8 @@
 from .asset import Asset
 from .objects import NativeObject
-from .connection import Connection
 from .messageable import Messageable
+
+from ..core.connection import Connection
 
 from ..utils import _bytes_to_image_data
 from ..typings.payloads import PartialUserPayload, UserPayload

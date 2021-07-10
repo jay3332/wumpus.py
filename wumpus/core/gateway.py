@@ -9,7 +9,6 @@ from typing import Optional, Union
 import aiohttp
 
 from .enums import OpCode
-from .user import ClientUser
 from .connection import Connection, GatewayInfo
 from ..typings import JSON
 

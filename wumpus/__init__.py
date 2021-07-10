@@ -1,4 +1,5 @@
 from .core import *
+from .models import *
 from .errors import *
 from . import utils
 

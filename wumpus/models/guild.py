@@ -1,8 +1,8 @@
 from typing import TypeVar
 
-from .connection import Connection
 from .objects import NativeObject
 
+from ..core.connection import Connection
 from ..typings.payloads import GuildPayload
 
 

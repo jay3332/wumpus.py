@@ -1,5 +1,5 @@
 from typing import Any, Dict, NamedTuple, Literal, Tuple, Type, TypeVar, overload
-from .connection import Connection
+from ..core.connection import Connection
 
 
 T = TypeVar('T', bound='Asset')
