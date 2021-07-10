@@ -128,6 +128,10 @@ class HTTPClient:
     def api(self) -> Router:
         return self.__api_router
 
+    @property
+    def session(self) -> ClientSession:
+        return self.__session
+
     async def request(
         self,
         method: HTTPRequestMethod,

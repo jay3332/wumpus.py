@@ -4,13 +4,17 @@ import asyncio
 import json
 import sys
 import zlib
-from typing import Optional, Union, Dict
+from typing import Optional, Union
 
 import aiohttp
 
-from ..typings import JSON
 from .enums import OpCode
 from .user import ClientUser
+from .connection import Connection, GatewayInfo
+from ..typings import JSON
+
+from .events import EventEmitter
+
 
 __all__ = (
     'Reconnect',
@@ -76,45 +80,63 @@ class Gateway:
 
     # __slots__ = ('heartbeat_interval', 'ws', 'gateway', '_connection', '_keep_alive', '_inflator', '_buffer')
     
-    def __init__(self, ws: aiohttp.ClientWebSocketResponse) -> None:
-        self._ws = ws
+    def __init__(self, ws: aiohttp.ClientWebSocketResponse, /) -> None:
+        self._ws: aiohttp.ClientWebSocketResponse = ws
+        self._hearbeat_manager: HeartbeatManager = None
+        self._connection: Connection = None
+
+        self._info: GatewayInfo = None
         self._inflator = zlib.decompressobj()
         self._buffer = bytearray()
-        self._keep_alive = None
-        self._seq = None
-        self._session_id = None
-        self.__token = None
-        self._connection = None
+        self._sequence: int = None
+        self._session_id: int = None
+
+        self.__token: str = None
+        
+        self.shard_id: Optional[int] = None        
+        self.shard_count: Optional[int] = None        
+        self.heartbeat_interval: int = None
+
+        self._emitter: EventEmitter = EventEmitter(self)
 
     @classmethod
-    async def connect_from_client(cls, client, *, session_id: Optional[int]=None, seq: Optional[int]=None, resume: bool=True):
+    async def from_connection(
+        cls,
+        connection: Connection,
+        /,
+        *,
+        session_id: Optional[int] = None, 
+        sequence: Optional[int] =  None, 
+        resume: bool = True
+    ):
         """
-        Create a Gateway object from client
+        Creates a :class:`Gateway` from a :class:`Connection`.
         """
-        _gateway = await client._connection.http.get_gateway_bot()
-        ws = await client._connection.http.session.ws_connect(_gateway)
+
+        gateway_info = await connection.get_gateway_bot()
+        ws = await connection.http.session.ws_connect(gateway_info.url)
+
         gateway = cls(ws)
-        gateway.__token = client._connection.__token
-        gateway._connection = client._connection
-        await gateway.receive_events() # For Hello event
-        gateway.gateway = gateway
-        gateway.shard_id = client._connection.shard_id
-        gateway.shard_count = client._connection.shard_count
+        gateway.__token = connection.token
+        gateway._connection = connection
+        await gateway.receive_events()  # For Hello event
+
+        gateway.shard_id = connection.shard_id
+        gateway.shard_count = connection.shard_count
         gateway._session_id = session_id
-        gateway._seq = seq
+        gateway._sequence = sequence
 
         if resume:
             await gateway.resume()
             return gateway
         
         await gateway.identify()
-
         return gateway
 
-    async def send_json(self, payload: JSON) -> None:
+    async def send(self, payload: JSON, /) -> None:
         await self._ws.send_str(json.dumps(payload))
     
-    async def identify(self):
+    async def identify(self, /) -> None:
         payload = {
             "op": OpCode.IDENTIFY.value,
             "d": {
@@ -128,6 +150,7 @@ class Gateway:
                 "large_threshold": 250,
             }
         }
+
         if self.shard_id is not None and self.shard_count is not None:
             payload["d"]["shard"] = [self.shard_id, self.shard_count]
 
@@ -135,7 +158,7 @@ class Gateway:
 
         # TODO: Implement intent thing
     
-        await self.send_json(payload)
+        await self.send(payload)
     
     async def resume(self) -> None:
         payload = {
@@ -146,7 +169,7 @@ class Gateway:
                 'token': self.__token,
             }
         }
-        await self.send_json(payload)
+        await self.send(payload)
     
     async def parse_websocket_message(self, data: Union[str, bytes]) -> None:
         if type(data) is bytes:
@@ -188,12 +211,8 @@ class Gateway:
             raise Reconnect()
 
         elif op is OpCode.DISPATCH:
-            event = msg.get('t')
-            if event == "READY":
-                self._session_id == data.get('session_id')
-                user = ClientUser._load_data(data.get('user'))
-                self._connection._user = user
-                # TODO: Handle user and application info
+            event = message.get('t')
+            return self._emitter.handle(event, data)
 
         else: 
             raise ...

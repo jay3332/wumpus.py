@@ -176,6 +176,7 @@ class User(PartialUser, Messageable):
         super()._load_data(data)
 
     async def create_dm(self, /) -> ...:
-        await self._connection.api.users.me.channels.post({
+        payload = {
             'recipient_id': self.id
-        })
+        }
+        await self._connection.api.users.me.channels.post(payload)
