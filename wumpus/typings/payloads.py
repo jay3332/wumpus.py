@@ -7,7 +7,7 @@ from . import Snowflake, JSON
 class ReadyEventPayload(TypedDict, total=False):
     v: int
     user: UserPayload
-    guilds: List[...]
+    guilds: List[UnavailableGuildPayload]
     session_id: str
     shard: List[int]
     application: JSON
@@ -87,3 +87,64 @@ class GuildPayload(PartialGuildPayload, total=False):
     max_members: int
     premium_subscription_count: int
     max_video_channel_users: int
+
+
+class EmbedAuthorPayload(TypedDict, total=False):
+    name: str
+    url: Optional[str]
+    icon_url: Optional[str]
+    proxy_icon_url: Optional[str]
+
+
+class EmbedFooterPayload(TypedDict, total=False):
+    text: str
+    icon_url: Optional[str]
+    proxy_icon_url: Optional[str]
+
+
+class EmbedFieldPayload(TypedDict, total=False):
+    name: str
+    value: str
+    inline: bool
+
+
+class EmbedImagePayload(TypedDict, total=False):
+    url: str
+    proxy_url: Optional[str]
+    height: int
+    width: int
+
+
+class EmbedThumbnailPayload(TypedDict, total=False):
+    url: str       
+    proxy_url: Optional[str]
+    height: int
+    width: int
+
+
+class EmbedVideoPayload(TypedDict, total=False):
+    url: str
+    height: int
+    width: int
+    proxy_url: str
+
+
+class EmbedProviderPayload(TypedDict, total=False):
+    name: str
+    url: Optional[str]
+
+
+class EmbedPayload(TypedDict, total=False):
+    title: str
+    description: str
+    url: str
+    timestamp: str
+    color: int
+    
+    author: EmbedAuthorPayload
+    footer: EmbedFooterPayload
+    image: EmbedImagePayload
+    thumbnail: EmbedThumbnailPayload
+    video: EmbedVideoPayload
+    provider: EmbedProviderPayload
+    fields: List[EmbedFieldPayload]

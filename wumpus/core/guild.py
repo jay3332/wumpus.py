@@ -32,3 +32,4 @@ class Guild(NativeObject):
 
     def _copy(self: T) -> T:
         return self.__class__(self._connection, self._last_received_data)
+# what jay doing :rooAww:

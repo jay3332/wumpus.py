@@ -4,7 +4,7 @@ import asyncio
 import json
 import sys
 import zlib
-from typing import Optional, Union
+from typing import Optional, Union, Dict
 
 import aiohttp
 
@@ -148,29 +148,37 @@ class Gateway:
         }
         await self.send_json(payload)
     
-    async def received_events(self, data: Union[str, bytes]) -> None:
+    async def parse_websocket_message(self, data: Union[str, bytes]) -> None:
         if type(data) is bytes:
             self._buffer.extend(data)
             if len(data) < 4 or data[-4:] != b'\x00\x00\xff\xff':
                 return
+
             data = self._inflator.decompress(self._buffer)
             self._buffer = bytearray()
-        msg = json.loads(data)
-        op = OpCode(msg.get('op'))
-        data: Dict[str, Union[int, str]] = msg.get('d')
-        seq = msg.get('s')
+
+        message = json.loads(data)
+        op = OpCode(message.get('op'))
+        data = message.get('d')
+        seq = message.get('s')
+
         if seq is not None:
             self._seq = seq
+
         if op is OpCode.RECONNECT:
             raise Reconnect()
+
         elif op is OpCode.HEARTBEAT_ACK:
             self._keep_alive.ack()
+
         elif op is OpCode.HEARTBEAT:
             await self._keep_alive.heartbeat()
+
         elif op is OpCode.HELLO:
-            self.heartbeat_interval = data['heartbeat_interval'] / 1000 # For seconds
+            self.heartbeat_interval = data['heartbeat_interval'] / 1000  # For seconds
             self._keep_alive = HeartbeatManager(self)
             await self._keep_alive.heartbeat()
+
         elif op is OpCode.INVALIDATE_SESSION:
             if data is not True:
                 # We need to send a fresh Identify
@@ -178,6 +186,7 @@ class Gateway:
                 self._session_id = None
                 raise Reconnect(resume=False)
             raise Reconnect()
+
         elif op is OpCode.DISPATCH:
             event = msg.get('t')
             if event == "READY":
@@ -185,16 +194,14 @@ class Gateway:
                 user = ClientUser._load_data(data.get('user'))
                 self._connection._user = user
                 # TODO: Handle user and application info
-        else:
+
+        else: 
             raise ...
-
-
-
     
     async def receive_events(self):
         m = await self._ws.receive()
         if m.type is aiohttp.WSMsgType.TEXT or m.type is aiohttp.WSMsgType.BINARY:
-            await self.received_events(m.data)
+            await self.parse_websocket_message(m.data)
         elif m.type is aiohttp.WSMsgType.ERROR:
             raise m.data
         elif m.type in (aiohttp.WSMsgType.CLOSED, aiohttp.WSMsgType.CLOSING, aiohttp.WSMsgType.CLOSE):

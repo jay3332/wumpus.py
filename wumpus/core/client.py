@@ -1,9 +1,10 @@
+from __future__ import annotations
+
 from collections import defaultdict
 from asyncio import get_event_loop, AbstractEventLoop
 from typing import Callable, Dict, List, NamedTuple, Optional, Union, overload
 
 from .http import Router
-from .user import ClientUser
 from .connection import Connection
 from ..typings.core import HTTPVersion, GatewayVersion, EmitterCallback
 
@@ -83,7 +84,7 @@ class Client(Emitter):
         return self._connection.api if self._connection else None
 
     @property
-    def user(self) -> ClientUser:
+    def user(self) -> ClientUser:  # type: ignore
         return self._connection.user
 
     def _establish_connection(self) -> None:

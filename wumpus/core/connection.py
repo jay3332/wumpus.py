@@ -1,10 +1,10 @@
+from __future__ import annotations
+
 import re
 
 from asyncio import AbstractEventLoop
 
 from .http import HTTPClient, Router
-from .user import ClientUser
-
 from ..typings.payloads import UserPayload
 
 
@@ -23,7 +23,7 @@ class Connection:
     def __init__(self, loop: AbstractEventLoop) -> None:
         self._loop: AbstractEventLoop = loop
         self._http: HTTPClient = None
-        self._user: ClientUser = None
+        self._user: ClientUser = None  # type: ignore
 
         self.__token: str = None
 
@@ -40,7 +40,7 @@ class Connection:
         return self._http.api
 
     @property
-    def user(self) -> ClientUser:
+    def user(self) -> ClientUser:  # type: ignore
         return self._user
 
     @property
@@ -65,6 +65,8 @@ class Connection:
         self._http = HTTPClient(v=v, token=token)
 
     def patch_current_user(self, data: UserPayload, /) -> None:
+        from .user import ClientUser
+        
         if self._user is None:
             self._user = ClientUser(self, data)
         else:

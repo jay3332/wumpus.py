@@ -25,7 +25,17 @@ _SNOWFLAKE_GEN_INCREMENT = 0
 
 
 class Timestamp(datetime):
-    __slots__ = datetime.__slots__
+    __slots__ = (
+        '_year',
+        '_month',
+        '_day',
+        '_hour',
+        '_minute',
+        '_second',
+        '_microsecond',
+        '_tzinfo',
+        '_fold'
+    )
 
     @overload
     def __new__(
@@ -45,7 +55,7 @@ class Timestamp(datetime):
         ...
 
     def __new__(cls: Type[DT], /, *args, **kwargs) -> DT:
-        return super().__new__(*args, **kwargs)
+        return super().__new__(cls, *args, **kwargs)
 
     def __format__(self, style: TimestampStyle, /) -> str:
         if not style:
@@ -54,12 +64,20 @@ class Timestamp(datetime):
         return f'<t:{int(self.timestamp())}:{style}>'
 
     @classmethod
-    def utcfromtimestamp(cls: Type[DT], timestamp: float) -> DT:
-        naive = super().utcfromtimestamp(timestamp)
+    def now(cls: Type[DT], /) -> DT:
+        return super().now(timezone.utc)
+
+    @classmethod
+    def utcnow(cls: Type[DT], /) -> DT:
+        return cls.now()
+
+    @classmethod
+    def utcfromtimestamp(cls: Type[DT], timestamp: float, /) -> DT:
+        naive = super().utcfromtimestamp(int(timestamp))
         return naive.replace(tzinfo=timezone.utc)
 
     @classmethod
-    def from_datetime(cls: Type[DT], dt: datetime) -> DT:
+    def from_datetime(cls: Type[DT], dt: datetime, /) -> DT:
         return cls.utcfromtimestamp(dt.timestamp())
 
     def to_datetime(self, /) -> datetime:
@@ -90,7 +108,7 @@ class Timestamp(datetime):
         else:
             incr = increment
         
-        buffer = ((self.timestamp() * 1000) - DISCORD_EPOCH) 
+        buffer = int((self.timestamp() * 1000) - DISCORD_EPOCH) 
         buffer = (buffer << 5) | worker_id
         buffer = (buffer << 5) | process_id
         buffer = (buffer << 12) | incr
