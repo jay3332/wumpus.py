@@ -152,7 +152,7 @@ def deconstruct_snowflake(snowflake: int) -> _DeconstructedSnowflake:
 class Object:
     def __init__(self, id: Snowflake = None, /) -> None:
         if id is not None:
-            self.__id: Snowflake = id
+            self.__id: Snowflake = int(id)
             self.__dc: _DeconstructedSnowflake = None
 
     def __deconstruct(self, /) -> None:
