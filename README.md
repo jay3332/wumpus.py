@@ -1,4 +1,6 @@
 # wumpus.py
 hmm very suspicious.
 
-[@jay3332](https://github.com/jay3332) suspishous.
+[@Cryptex](https://github.com/Cryptex-github) you must be imposter
+
+![youMustBeImposter](https://cdn.discordapp.com/emojis/858510024867315783.gif?v=1)
