@@ -1,11 +1,10 @@
-from __future__ import annotations
-
 import asyncio
 import time
 from base64 import b64encode
 from collections import deque
 from inspect import isawaitable
-from typing import Any, Awaitable, Callable, TypeVar, Union, overload, Coroutine, Optional
+from typing import (Any, Awaitable, Callable, Coroutine, Optional, TypeVar,
+                    Union, overload)
 
 from .core.objects import deconstruct_snowflake
 

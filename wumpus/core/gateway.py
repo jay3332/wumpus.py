@@ -8,13 +8,11 @@ from typing import Optional, Union
 
 import aiohttp
 
-from .enums import OpCode
-from .connection import Connection, GatewayInfo
 from ..typings import JSON
 from ..utils import Ratelimiter
-
+from .connection import Connection, GatewayInfo
+from .enums import OpCode
 from .events import EventEmitter
-
 
 __all__ = (
     'Reconnect',
