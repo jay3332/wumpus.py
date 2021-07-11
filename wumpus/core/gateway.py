@@ -11,6 +11,7 @@ import aiohttp
 from .enums import OpCode
 from .connection import Connection, GatewayInfo
 from ..typings import JSON
+from ..utils import Ratelimiter
 
 from .events import EventEmitter
 
@@ -59,7 +60,7 @@ class HeartbeatManager:
             'op': OpCode.HEARTBEAT.value,
             'd': self._gateway._seq,
         }
-        await self._gateway.send_json(payload)
+        await self._gateway.send(payload, force=True) # Heartbeat should be send no matter what.
 
     async def heartbeat_task(self) -> None:
         while not self._connection.closed:
@@ -95,6 +96,7 @@ class Gateway:
         self.shard_id: Optional[int] = None        
         self.shard_count: Optional[int] = None        
         self.heartbeat_interval: int = None
+        self._ratelimiter: Ratelimiter = None
 
         self._emitter: EventEmitter = EventEmitter(self)
 
@@ -124,6 +126,7 @@ class Gateway:
         gateway.shard_count = connection.shard_count
         gateway._session_id = session_id
         gateway._sequence = sequence
+        gateway._ratelimiter = Ratelimiter(110, 60, gateway.gateway_ratelimited()) # Reserve 10 for heartbeat.
 
         if resume:
             await gateway.resume()
@@ -132,8 +135,15 @@ class Gateway:
         await gateway.identify()
         return gateway
 
-    async def send(self, payload: JSON, /) -> None:
-        await self._ws.send_str(json.dumps(payload))
+    async def send(self, payload: JSON, *, force: bool = False) -> None:
+        if force:
+            return await self._ws.send_str(json.dumps(payload))
+
+        async with self._ratelimiter:
+            return await self._ws.send_str(json.dumps(payload))
+    
+    async def gateway_ratelimited(self) -> None:
+        ...
     
     async def identify(self, /) -> None:
         payload = {
