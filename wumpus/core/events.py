@@ -35,7 +35,7 @@ class EventEmitter(_BaseEventEmitter):
 
     async def ready(self, data: ReadyEventPayload, /) -> None:
         self._connection.patch_current_user(data['user'])
-        
+        self._connection.ws._session_id = data['session_id']
 
     async def message_create(self, data: JSON, /) -> None:
         ...
