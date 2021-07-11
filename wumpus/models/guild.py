@@ -46,24 +46,24 @@ class Guild(NativeObject):
         self._put_snowflake(data['id'])
 
         self._name: Optional[str] = data.get('name')
-        self._unavailable: bool = data.get('unavailable', True)
-        self._owner_id: Snowflake = int(data.get('owner_id'))
+        self._unavailable: Optional[bool] = data.get('unavailable', True)
+        self._owner_id: Optional[Snowflake] = int(data.get('owner_id'))
 
-        self._afk_channel_id: Snowflake = int(data.get('afk_channel_id'))
-        self._afk_timeout: int = data.get('afk_timeout')
+        self._afk_channel_id: Optional[Snowflake] = int(data.get('afk_channel_id'))
+        self._afk_timeout: Optional[int] = data.get('afk_timeout')
         
-        self._widget_enabled: bool = data.get('widget_enabled')
-        self._widget_channel_id: Snowflake = int(data.get('widget_channel_id'))
+        self._widget_enabled: Optional[bool] = data.get('widget_enabled')
+        self._widget_channel_id: Optional[Snowflake] = int(data.get('widget_channel_id'))
         
         self._features: List[str] = data.get('features')
-        self._application_id: Snowflake = int(data.get('application_id'))
+        self._application_id: Optional[Snowflake] = int(data.get('application_id'))
 
-        self._system_channel_id: Snowflake = int(data.get('system_channel_id'))
-        self._rules_channel_id: Snowflake = int(data.get('rules_channel_id'))
+        self._system_channel_id: Optional[Snowflake] = int(data.get('system_channel_id'))
+        self._rules_channel_id: Optional[Snowflake] = int(data.get('rules_channel_id'))
 
         self._created_at: datetime = datetime.fromisoformat(data.get('joined_at'))
-        self._large: bool = data.get('large')
-        self._member_count: int = data.get('member_count')
+        self._large: Optional[bool] = data.get('large')
+        self._member_count: Optional[int] = data.get('member_count')
 
         self._max_presences: Optional[int] = data.get('max_presences')
         self._max_members: Optional[int] = data.get('max_members')
@@ -75,12 +75,12 @@ class Guild(NativeObject):
         self._public_updates_channel_id: Optional[Snowflake] = data.get('public_updates_channel_id')
         self._max_video_channel_users: Optional[int] = data.get('max_video_channel_users')
 
-        self._verification_level: VerificationLevel = VerificationLevel(data.get('verification_level'))
-        self._default_message_notifications: DefaultMessageNotificationLevel = DefaultMessageNotificationLevel(data.get('default_message_notifications'))
-        self._explicit_content_filter: ExplicitContentFilterLevel = ExplicitContentFilterLevel(data.get('explicit_content_filter'))
-        self._mfa_level: MFALevel = MFALevel(data.get('mfa_level'))
-        self._premium_tier: PremiumTier = PremiumTier(data.get('premium_tier'))
-        self._nsfw_level: GuildNSFWLevel = GuildNSFWLevel(data.get('nsfw_level'))
+        self._verification_level: Optional[VerificationLevel] = VerificationLevel(data.get('verification_level'))
+        self._default_message_notifications: Optional[DefaultMessageNotificationLevel] = DefaultMessageNotificationLevel(data.get('default_message_notifications'))
+        self._explicit_content_filter: Optional[ExplicitContentFilterLevel] = ExplicitContentFilterLevel(data.get('explicit_content_filter'))
+        self._mfa_level: Optional[MFALevel] = MFALevel(data.get('mfa_level'))
+        self._premium_tier: Optional[PremiumTier] = PremiumTier(data.get('premium_tier'))
+        self._nsfw_level: Optional[GuildNSFWLevel] = GuildNSFWLevel(data.get('nsfw_level'))
         # TODO: MemberManager, RoleManager, EmojiManager, etc 
 
         self.icon: Asset = self._load_asset('icon', data=data, entity='icons')
