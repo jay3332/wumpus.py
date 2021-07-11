@@ -64,7 +64,7 @@ class Role(NativeObject):
     def __init__(self: T, connection: Connection, guild: Guild, data: JSON, /) -> None:
         self._guild: Guild = guild
         self._connection = connection
-        self._load_data(guild, data)
+        self._load_data(data)
     
     def _load_data(self: T, data: JSON) -> None:
         self._put_snowflake(data.get('id'))
