@@ -3,7 +3,7 @@ from typing import List, Optional
 from ..core.enums import MemberShipState
 from ..typings import Snowflake
 from .asset import Asset
-from .connection import Connection
+from ..core.connection import Connection
 from .objects import NativeObject
 from .user import PartialUser
 
