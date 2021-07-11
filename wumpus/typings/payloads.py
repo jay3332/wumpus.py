@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, Literal, Optional, TypedDict
+from typing import List, Literal, Optional, TypedDict, Union
 from . import Snowflake, JSON
 
 
@@ -148,3 +148,58 @@ class EmbedPayload(TypedDict, total=False):
     video: EmbedVideoPayload
     provider: EmbedProviderPayload
     fields: List[EmbedFieldPayload]
+
+
+class PartialMessagePayload(TypedDict):
+    id: Snowflake
+    channel_id: Snowflake
+    author: PartialUserPayload
+    content: str
+    timestamp: str
+    edited_timestamp: Optional[str]
+    tts: bool
+    mention_everyone: bool
+    mentions: List[PartialUserPayload]
+    mention_roles: List[Snowflake]
+    attachments: List[JSON]  # TODO: Attachment
+    embeds: List[EmbedPayload]
+    pinned: bool
+    type: Literal[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 18, 19, 20, 21]
+
+
+class ChannelMentionPayload(TypedDict, total=False):
+    id: Snowflake
+    guild_id: Snowflake
+    type: Literal[0, 1, 2, 3, 4, 5, 6, 10, 11, 12, 13]
+    name: str
+
+
+class ReactionPayload(TypedDict):
+    count: int
+    me: bool
+    emoji: JSON  # TODO: [Partial]Emoji
+
+
+class MessageReferencePayload(TypedDict, total=False):
+    message_id: Snowflake
+    channel_id: Snowflake
+    guild_id: Snowflake
+    fail_if_not_exists: bool
+
+
+class MessagePayload(PartialMessagePayload):
+    guild_id: Snowflake
+    member: JSON  # TODO: Member
+    mention_channels: List[ChannelMentionPayload]
+    reactions: List[ReactionPayload]
+    nonce: Union[int, str]
+    webhook_id: Snowflake
+    activity: JSON
+    application: JSON  # TODO: [Message]Application
+    application_id: Snowflake
+    message_reference: MessageReferencePayload
+    flags: int
+    stickers: List[JSON]  # Do not bother with this one, currently returns an empty array
+    referenced_message: Optional[MessagePayload]
+    interaction: JSON  # TODO: [Message]Interaction
+    components: List[JSON]  # TODO: [Message]Component

@@ -1,10 +1,12 @@
 from typing import List, Optional
 
-from ..typings import Snowflake
 from .asset import Asset
-from .objects import NativeObject
 from .team import Team
 from .user import PartialUser
+from .objects import NativeObject
+
+from ..core.connection import Connection
+from ..typings import Snowflake
 
 
 class Application(NativeObject):
@@ -23,13 +25,13 @@ class Application(NativeObject):
         The description of the application
     rpc_origins: Optional[:class:`str`] 
         An optional list of rpc origin urls, if rpc is enabled.
-
-
     """
+
     def __init__(self, connection, data) -> None:
-        self._connection = connection
+        self._connection: Connection = connection
         self._load_data(data)
-    
+        super().__init__()
+
     def _load_data(self, data) -> None:
         self._put_snowflake(data.get('id'))
         self.name = data.get('name')
@@ -56,3 +58,5 @@ class Application(NativeObject):
             self.cover_image: Optional[Asset] = None
         # TODO: flags
 
+    def _copy(self, /):
+        ...

@@ -23,7 +23,7 @@ class Messageable(Generic[T], ABC):
         self,
         /,
         content: str = None,
-    ):
+    ) -> Message:
         payload = {}
         if content is not None:
             payload['content'] = content

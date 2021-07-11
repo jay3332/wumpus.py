@@ -1,12 +1,24 @@
-import asyncio
 import time
+import asyncio
+
+from asyncio import AbstractEventLoop
+
 from base64 import b64encode
 from collections import deque
 from inspect import isawaitable
-from typing import (Any, Awaitable, Callable, Coroutine, Optional, TypeVar,
-                    Union, overload)
+from typing import (
+    Any,
+    Awaitable,
+    Callable,
+    Coroutine,
+    Optional, 
+    TypeVar,
+    Union,
+    overload
+)
 
-from .core.objects import deconstruct_snowflake
+from .models.objects import deconstruct_snowflake
+
 
 __all__ = (
     'maybe_coro',
@@ -57,26 +69,35 @@ def _bytes_to_image_data(data: bytes) -> str:
 
 class Ratelimiter:
     """
-    A ratelimiter mainly used for gateway ratelimit.
+    Utility class used to handle rate-limits.
     """
-    def __init__(self: T, max_calls: int, period: int, callback: Optional[Coroutine[Any]] = None) -> T:
-        self.max_calls: int = max_calls
-        self.period: int = period
-        self._callback: Optional[Coroutine[Any]] = callback
 
+    def __init__(
+        self: T, 
+        /,
+        rate: int, 
+        per: int, 
+        *, 
+        callback: Optional[Coroutine[None, None, Any]] = None,
+        loop: Optional[AbstractEventLoop] = None
+    ) -> T:
+        self.rate: int = rate
+        self.per: int = per
         self.recent_calls: deque = deque()
+        self.loop: Optional[AbstractEventLoop] = loop or asyncio.get_event_loop()
+
+        self._callback: Optional[Coroutine[None, None, Any]] = callback
         self._lock: asyncio.Lock = asyncio.Lock()
     
     async def __aenter__(self: T) -> T:
         async with self._lock:
-            loop = asyncio.get_event_loop()
-            if not loop.is_running():
+            if not self.loop.is_running:
                 raise RuntimeError('Ratelimiter should not be used if event loop is not running')
 
-            if len(self.recent_calls) >= self.max_calls:
-                sleep_until = time.time() + self.period - (self.recent_calls[-1] - self.recent_calls[0])
+            if len(self.recent_calls) >= self.rate:
+                sleep_until = time.time() + self.per - (self.recent_calls[-1] - self.recent_calls[0])
                 if self._callback is not None:
-                    loop.create_task(self._callback)
+                    self.loop.create_task(self._callback)
                         
                 to_sleep = sleep_until - time.time()
                 if to_sleep > 0:
@@ -84,11 +105,10 @@ class Ratelimiter:
             
             return self
 
-    async def __aexit__(self: T, *args: Any, **kwargs: Any) -> None:
+    async def __aexit__(self: T, *_: Any) -> None:
         async with self._lock:
             self.recent_calls.append(time.time())
 
-            # pop the old calls in recent call list. 
-            # not sure if this is the best way to do it but hm.
-            while (self.recent_calls[-1] - self.recent_calls[0]) >= self.period:
-                self.recent_calls.popleft() # This is why I used deque because del self.recent_calls[0] is nono pog. 
+            # pop the old calls in recent call list.
+            while self.recent_calls[-1] - self.recent_calls[0] >= self.per:
+                self.recent_calls.popleft() 

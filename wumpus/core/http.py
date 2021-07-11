@@ -60,18 +60,20 @@ class Router:
         *,
         params: Dict[str, Any] = None,
         data: JSON = None,
-        headers: Dict[str, str] = None
+        headers: Dict[str, str] = None,
+        **kwargs
     ) -> Awaitable[Optional[JSON]]:
-        return self.__http.request(method, self.url, params=params, data=data, headers=headers)
+        return self.__http.request(method, self.url, params=params, data=data, headers=headers, **kwargs)
 
     def get(
         self,
         params: Dict[str, Any] = None,
         /,
         *,
-        headers: Dict[str, str] = None
+        headers: Dict[str, str] = None,
+        **kwargs
     ) -> Awaitable[Optional[JSON]]:
-        return self.request('GET', params=params, headers=headers)
+        return self.request('GET', params=params, headers=headers, **kwargs)
 
     def post(
         self, 
@@ -79,36 +81,40 @@ class Router:
         /,
         *,
         params: Dict[str, Any] = None,
-        headers: Dict[str, str] = None
+        headers: Dict[str, str] = None,
+        **kwargs
     ) -> Awaitable[Optional[JSON]]:
-        return self.request('POST', data=data, params=params, headers=headers)
+        return self.request('POST', data=data, params=params, headers=headers, **kwargs)
 
     def put(
         self, 
         data: JSON = None,
         /,
         *,
-        headers: Dict[str, str] = None
+        headers: Dict[str, str] = None,
+        **kwargs
     ) -> Awaitable[Optional[JSON]]:
-        return self.request('PUT', data=data, headers=headers)
+        return self.request('PUT', data=data, headers=headers, **kwargs)
 
     def patch(
         self, 
         data: JSON = None,
         /,
         *,
-        headers: Dict[str, str] = None
+        headers: Dict[str, str] = None,
+        **kwargs
     ) -> Awaitable[Optional[JSON]]:
-        return self.request('PATCH', data=data, headers=headers)
+        return self.request('PATCH', data=data, headers=headers, **kwargs)
     
     def delete(
         self, 
         data: JSON = None,
         /,
         *,
-        headers: Dict[str, str] = None
+        headers: Dict[str, str] = None,
+        **kwargs
     ) -> Awaitable[Optional[JSON]]:
-        return self.request('DELETE', data=data, headers=headers)
+        return self.request('DELETE', data=data, headers=headers, **kwargs)
 
 
 class HTTPClient:
@@ -139,19 +145,25 @@ class HTTPClient:
         /,
         *,
         params: Dict[str, Any] = None,
+        headers: Dict[str, str] = None,
         data: JSON = None,
-        headers: Dict[str, str] = None
+        reason: str = None
     ) -> Optional[JSON]:
         key = f"{method} {url}"
         bucket = self._buckets_lock.get(key)
         if bucket is None:
             self._buckets_lock[key] = bucket = asyncio.Lock()
 
-        headers = {
-            'Authorization': self.__token,
-            'Content-Type': 'application/json',
-            **headers
-        }
+        headers = headers or {}
+
+        if 'Authorization' not in headers and self.__token:
+            headers['Authorization'] = 'Bot' + self.__token
+
+        if data is not None:
+            headers['Content-Type'] = 'application/json'
+
+        if reason is not None:
+            headers['X-Audit-Log-Reason'] = reason
 
         await bucket.acquire()
         if not self._global_ratelimited.is_set():

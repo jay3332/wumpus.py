@@ -4,3 +4,5 @@ tests/
 .idea/
 .venv/
 .replit
+dist/
+wumpus.py.egg-info/
