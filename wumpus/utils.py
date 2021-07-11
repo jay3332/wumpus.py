@@ -70,7 +70,7 @@ class Ratelimiter:
     async def __aenter__(self: T) -> T:
         async with self._lock:
             loop = asyncio.get_event_loop()
-            if not loop.is_running:
+            if not loop.is_running():
                 raise RuntimeError('Ratelimiter should not be used if event loop is not running')
 
             if len(self.recent_calls) >= self.max_calls:
