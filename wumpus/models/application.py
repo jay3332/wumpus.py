@@ -2,11 +2,12 @@ from typing import List, Optional
 
 from ..typings import Snowflake
 from .asset import Asset
+from .objects import NativeObject
 from .team import Team
 from .user import PartialUser
 
 
-class Application:
+class Application(NativeObject):
     """
     Represents a Discord application.
 
@@ -30,7 +31,7 @@ class Application:
         self._load_data(data)
     
     def _load_data(self, data) -> None:
-        self.id: Snowflake = data.get('id')
+        self._put_snowflake(data.get('id'))
         self.name = data.get('name')
         icon = data.get('icon')
         if icon:

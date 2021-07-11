@@ -32,5 +32,5 @@ class PremiumType(Enum):
     NITRO_REGULAR = 2
 
 class MemberShipState(Enum):
-    INVITED = 1
+    INVITED  = 1
     ACCEPTED = 2
