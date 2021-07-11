@@ -1,11 +1,13 @@
-from typing import TypeVar
+from datetime import datetime
+from typing import List, Optional, TypeVar
 
+from ..core.enums import DefaultMessageNotificationLevel, ExplicitContentFilterLevel, MFALevel, VerificationLevel, GuildNSFWLevel, PremiumTier
+from ..core.connection import Connection
+from ..typings import Snowflake
+from ..typings.payloads import GuildPayload
 from .asset import Asset
 from .objects import NativeObject
-
-from ..core.connection import Connection
-from ..typings.payloads import GuildPayload
-
+from .role import Role
 
 T = TypeVar('T', bound='Guild')
 
@@ -43,8 +45,42 @@ class Guild(NativeObject):
         self._last_received_data |= data
         self._put_snowflake(data['id'])
 
-        self._name: str = data['name']
+        self._name: Optional[str] = data.get('name')
+        self._unavailable: bool = data.get('unavailable', True)
+        self._owner_id: Snowflake = int(data.get('owner_id'))
 
+        self._afk_channel_id: Snowflake = int(data.get('afk_channel_id'))
+        self._afk_timeout: int = data.get('afk_timeout')
+        
+        self._widget_enabled: bool = data.get('widget_enabled')
+        self._widget_channel_id: Snowflake = int(data.get('widget_channel_id'))
+        
+        self._features: List[str] = data.get('features')
+        self._application_id: Snowflake = int(data.get('application_id'))
+
+        self._system_channel_id: Snowflake = int(data.get('system_channel_id'))
+        self._rules_channel_id: Snowflake = int(data.get('rules_channel_id'))
+
+        self._created_at: datetime = datetime.fromisoformat(data.get('joined_at'))
+        self._large: bool = data.get('large')
+        self._member_count: int = data.get('member_count')
+
+        self._max_presences: Optional[int] = data.get('max_presences')
+        self._max_members: Optional[int] = data.get('max_members')
+
+        self._vanity_url_code: Optional[str] = data.get('vanity_url_code')
+        self._description: Optional[str] = data.get('description')
+        self._premium_subscription_count: Optional[int] = data.get('premium_subscription_count')
+        self._preferred_locale: Optional[str] = data.get('preferred_locale')
+        self._public_updates_channel_id: Optional[Snowflake] = data.get('public_updates_channel_id')
+        self._max_video_channel_users: Optional[int] = data.get('max_video_channel_users')
+
+        self._verification_level: VerificationLevel = VerificationLevel(data.get('verification_level'))
+        self._default_message_notifications: DefaultMessageNotificationLevel = DefaultMessageNotificationLevel(data.get('default_message_notifications'))
+        self._explicit_content_filter: ExplicitContentFilterLevel = ExplicitContentFilterLevel(data.get('explicit_content_filter'))
+        self._mfa_level: MFALevel = MFALevel(data.get('mfa_level'))
+        self._premium_tier: PremiumTier = PremiumTier(data.get('premium_tier'))
+        self._nsfw_level: GuildNSFWLevel = GuildNSFWLevel(data.get('nsfw_level'))
         # TODO: MemberManager, RoleManager, EmojiManager, etc 
 
         self.icon: Asset = self._load_asset('icon', data=data, entity='icons')
