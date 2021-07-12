@@ -180,4 +180,11 @@ class User(PartialUser, Messageable):
         payload = {
             'recipient_id': self.id
         }
-        await self._connection.api.users.me.channels.post(payload)
+
+        route = self._connection.api.users.me.channels
+        data = await route.post(payload)
+        self._dm_channel_id = data['id']
+
+    @property
+    def _messageable_id(self, /) -> int:
+        return self._dm_channel_id

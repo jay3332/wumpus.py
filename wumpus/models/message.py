@@ -13,5 +13,11 @@ class Message(NativeObject):
     def _load_data(self, data: MessagePayload, /) -> None:
         super()._put_snowflake(data['id'])
 
+        self._content: str = data.get('content', '')
+
+    @property
+    def content(self, /) -> str:
+        return self._content
+
     def _copy(self, /):
         ...
