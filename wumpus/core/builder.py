@@ -41,8 +41,12 @@ class BaseMessageBuilder(ABC):
 
         self._payload['content'] = content
 
+    def _resolve_other(self, /) -> None:
+        ...
+
     def build(self, /) -> None:
         self._resolve_content()
+        self._resolve_other()
 
     @abstractmethod
     async def send(self, /) -> Any:

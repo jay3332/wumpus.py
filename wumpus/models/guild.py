@@ -85,7 +85,7 @@ class Guild(NativeObject):
         self._put_snowflake(data['id'])
 
         self._name: Optional[str] = data.get('name')
-        self._unavailable: Optional[bool] = data.get('unavailable', True)
+        self._unavailable: Optional[bool] = data.get('unavailable', False)
         self._owner_id: Optional[Snowflake] = int(data.get('owner_id'))
 
         self._afk_channel_id: Optional[Snowflake] = int(data.get('afk_channel_id'))
