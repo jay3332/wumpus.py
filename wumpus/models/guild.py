@@ -177,7 +177,7 @@ class Guild(NativeObject):
         return self._joined_at
 
     @property
-    def large(self, /) -> bool:
+    def large(self, /) -> Optional[bool]:
         return self._large
     
     @property
