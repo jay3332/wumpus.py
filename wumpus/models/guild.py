@@ -1,13 +1,20 @@
-from datetime import datetime
 from typing import List, Optional, TypeVar
 
-from ..core.enums import DefaultMessageNotificationLevel, ExplicitContentFilterLevel, MFALevel, VerificationLevel, GuildNSFWLevel, PremiumTier
-from ..core.connection import Connection
+from ..core.enums import (
+    MFALevel, 
+    PremiumTier,
+    GuildNSFWLevel, 
+    VerificationLevel, 
+    ExplicitContentFilterLevel, 
+    DefaultMessageNotificationLevel,
+)
+
 from ..typings import Snowflake
+from ..core.connection import Connection
 from ..typings.payloads import GuildPayload
+
+from .objects import NativeObject, Timestamp
 from .asset import Asset
-from .objects import NativeObject
-from .role import Role
 
 T = TypeVar('T', bound='Guild')
 
@@ -19,6 +26,38 @@ __all__ = (
 class Guild(NativeObject):
     __slots__ = (
         '_name',
+        '_unavailable',
+        '_owner_id',
+        '_afk_channel_id',
+        '_afk_timeout',
+        '_widget_enabled',
+        '_widget_channel_id',
+        '_features',
+        '_application_id',
+        '_system_channel_id',
+        '_rules_channel_id',
+        '_joined_at',
+        '_large',
+        '_member_count',
+        '_max_presences',
+        '_max_members',
+        '_explicit_content_filter',
+        '_vanity_url_code',
+        '_description',
+        '_premium_subscription_count',
+        '_preferred_locale',
+        '_public_updates_channel_id',
+        '_max_video_channel_users',
+        '_verification_level',
+        '_default_channel_notifications',
+        '_explicit_content_filter',
+        '_mfa_level',
+        '_premium_tier',
+        '_nsfw_level',
+        'icon',
+        'banner',
+        'splash',
+        'discovery_splash'
     ) + NativeObject.__slots__
 
     def __init__(self, connection: Connection, /, data: GuildPayload) -> None:
@@ -61,7 +100,7 @@ class Guild(NativeObject):
         self._system_channel_id: Optional[Snowflake] = int(data.get('system_channel_id'))
         self._rules_channel_id: Optional[Snowflake] = int(data.get('rules_channel_id'))
 
-        self._created_at: datetime = datetime.fromisoformat(data.get('joined_at'))
+        self._joined_at: Timestamp = Timestamp.fromisoformat(data.get('joined_at'))
         self._large: Optional[bool] = data.get('large')
         self._member_count: Optional[int] = data.get('member_count')
 
