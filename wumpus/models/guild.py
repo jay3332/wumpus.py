@@ -101,7 +101,7 @@ class Guild(NativeObject):
         self._application_id: Optional[Snowflake] = int(data.get('application_id'))
 
         self._system_channel_id: Optional[Snowflake] = int(data.get('system_channel_id'))
-        self._system_channel_flags: SystemChannelFlags = SystemChannelFlags(data.get('system_channel_flags')) 
+        self._system_channel_flags: Optional[SystemChannelFlags] = SystemChannelFlags(data.get('system_channel_flags', 0)) 
         self._rules_channel_id: Optional[Snowflake] = int(data.get('rules_channel_id'))
 
         self._joined_at: Timestamp = Timestamp.fromisoformat(data.get('joined_at'))
@@ -118,12 +118,12 @@ class Guild(NativeObject):
         self._public_updates_channel_id: Optional[Snowflake] = data.get('public_updates_channel_id')
         self._max_video_channel_users: Optional[int] = data.get('max_video_channel_users')
 
-        self._verification_level: Optional[VerificationLevel] = VerificationLevel(data.get('verification_level'))
-        self._default_message_notifications: Optional[DefaultMessageNotificationLevel] = DefaultMessageNotificationLevel(data.get('default_message_notifications'))
-        self._explicit_content_filter: Optional[ExplicitContentFilterLevel] = ExplicitContentFilterLevel(data.get('explicit_content_filter'))
-        self._mfa_level: Optional[MFALevel] = MFALevel(data.get('mfa_level'))
-        self._premium_tier: Optional[PremiumTier] = PremiumTier(data.get('premium_tier'))
-        self._nsfw_level: Optional[GuildNSFWLevel] = GuildNSFWLevel(data.get('nsfw_level'))
+        self._verification_level: Optional[VerificationLevel] = VerificationLevel(data.get('verification_level', 0))
+        self._default_message_notifications: Optional[DefaultMessageNotificationLevel] = DefaultMessageNotificationLevel(data.get('default_message_notifications', 0))
+        self._explicit_content_filter: Optional[ExplicitContentFilterLevel] = ExplicitContentFilterLevel(data.get('explicit_content_filter', 0))
+        self._mfa_level: Optional[MFALevel] = MFALevel(data.get('mfa_level', 0))
+        self._premium_tier: Optional[PremiumTier] = PremiumTier(data.get('premium_tier', 0))
+        self._nsfw_level: Optional[GuildNSFWLevel] = GuildNSFWLevel(data.get('nsfw_level', 0))
         # TODO: MemberManager, RoleManager, EmojiManager, etc 
 
         self.icon: Asset = self._load_asset('icon', data=data, entity='icons')
