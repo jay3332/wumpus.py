@@ -1,1 +1,1 @@
-from .core import Snowflake, JSON
+from .core import Snowflake, JSON, VALID_DELETE_MESSAGE_DAYS
