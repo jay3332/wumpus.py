@@ -129,9 +129,117 @@ class Guild(NativeObject):
         self.discovery_splash: Asset = self._load_asset('discovery_splash', data=data, entity='discovery-splashes')
 
     @property
-    def name(self, /) -> str:
+    def name(self, /) -> Optional[str]:
         return self._name
     
+    @property
+    def unavailable(self, /) -> bool:
+        return self._unavailable
+    
+    @property
+    def owner_id(self, /) -> Optional[Snowflake]:
+        return self._owner_id
+    
+    @property
+    def afk_channel_id(self, /) -> Optional[Snowflake]:
+        return self._afk_channel_id
+    
+    @property
+    def afk_timeout(self, /) -> Optional[int]:
+        return self._afk_timeout
+    
+    @property
+    def widget_enabled(self, /) -> bool:
+        return self._widget_enabled
+    
+    @property
+    def widget_channel_id(self, /) -> Optional[Snowflake]:
+        return self._widget_channel_id
+    
+    @property
+    def features(self, /) -> Optional[List[str]]:
+        return self._features
+    
+    @property
+    def application_id(self, /) -> Optional[Snowflake]:
+        return self._application_id
+    
+    @property
+    def system_channel_id(self, /) -> Optional[Snowflake]:
+        return self._system_channel_id
+    
+    @property
+    def rules_channel_id(self, /) -> Optional[Snowflake]:
+        return self._rules_channel_id
+    
+    @property
+    def created_at(self, /) -> Optional[Timestamp]:
+        return self._joined_at
+
+    @property
+    def large(self, /) -> bool:
+        return self._large
+    
+    @property
+    def member_count(self, /) -> Optional[int]:
+        return self._member_count
+    
+    @property
+    def max_presences(self, /) -> Optional[int]:
+        return self._max_presences
+    
+    @property
+    def max_members(self, /) -> Optional[int]:
+        return self._max_members
+    
+    @property
+    def vanity_url_code(self, /) -> Optional[str]:
+        return self._vanity_url_code
+    
+    @property
+    def description(self, /) -> Optional[str]:
+        return self._description
+    
+    @property
+    def premium_subscription_count(self, /) -> Optional[int]:
+        return self._premium_subscription_count
+
+    @property
+    def preferred_locale(self, /) -> Optional[str]:
+        return self._preferred_locale
+
+    @property
+    def public_updates_channel_id(self, /) -> Optional[Snowflake]:
+        return self._public_updates_channel_id
+
+    @property
+    def max_video_channel_users(self, /) -> Optional[int]:
+        return self._max_video_channel_users
+
+    @property
+    def verification_level(self, /) -> Optional[VerificationLevel]:
+        return self._verification_level
+    
+    @property
+    def default_message_notifications(self, /) -> Optional[DefaultMessageNotificationLevel]:
+        return self._default_message_notifications
+    
+    @property
+    def explicit_content_filter(self, /) -> Optional[ExplicitContentFilterLevel]:
+        return self._explicit_content_filter
+    
+    @property
+    def mfa_level(self, /) -> Optional[MFALevel]:
+        return self._mfa_level
+    
+    @property
+    def premium_tier(self, /) -> Optional[PremiumTier]:
+        return self._premium_tier
+    
+    @property
+    def nsfw_level(self, /) -> Optional[GuildNSFWLevel]:
+        return self._nsfw_level
+
     async def kick(self: T, member: Member, *, reason: str = None) -> None:
         await self._connection.api.guilds(self.id).members(member.id).delete(reason=reason)
     
