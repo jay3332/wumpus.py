@@ -124,7 +124,7 @@ class InvertedBitfield(Bitfield):
         self._value: int = value or self.__class__.__max_value__
 
     def _has(self, other: int, /) -> bool:
-        return not super()._get(other)
+        return not super()._has(other)
 
     def _set(self, other: int, /, toggle: bool = True) -> int:
         return super()._set(other, not toggle)
