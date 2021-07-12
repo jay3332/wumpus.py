@@ -16,6 +16,7 @@ from .member import Member
 
 from .objects import NativeObject, Timestamp
 from .asset import Asset
+from .flags import SystemChannelFlags
 
 T = TypeVar('T', bound='Guild')
 
@@ -36,6 +37,7 @@ class Guild(NativeObject):
         '_features',
         '_application_id',
         '_system_channel_id',
+        '_system_channel_flags',
         '_rules_channel_id',
         '_joined_at',
         '_large',
@@ -99,6 +101,7 @@ class Guild(NativeObject):
         self._application_id: Optional[Snowflake] = int(data.get('application_id'))
 
         self._system_channel_id: Optional[Snowflake] = int(data.get('system_channel_id'))
+        self._system_channel_flags: SystemChannelFlags = SystemChannelFlags(data.get('system_channel_flags')) 
         self._rules_channel_id: Optional[Snowflake] = int(data.get('rules_channel_id'))
 
         self._joined_at: Timestamp = Timestamp.fromisoformat(data.get('joined_at'))
@@ -167,6 +170,10 @@ class Guild(NativeObject):
     @property
     def system_channel_id(self, /) -> Optional[Snowflake]:
         return self._system_channel_id
+    
+    @property
+    def system_channel_flags(self, /) -> Optional[SystemChannelFlags]:
+        return self._system_channel_flags
     
     @property
     def rules_channel_id(self, /) -> Optional[Snowflake]:
