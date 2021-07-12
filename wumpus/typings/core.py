@@ -6,6 +6,7 @@ __all__: Tuple[str, ...] = (
     'Snowflake',
     'HTTPVersion',
     'GatewayVersion',
+    'ValidDeleteMessageDays'
     'HTTPRequestMethod',
     'TimestampStyle',
     'EmitterCallback'
@@ -18,6 +19,7 @@ Snowflake = int  # Type alias for readability
 
 HTTPVersion = Literal[3, 4, 5, 6, 7, 8, 9]
 GatewayVersion = Literal[4, 5, 6, 7, 8, 9]
+ValidDeleteMessageDays = Literal[0, 1, 2, 3, 4, 5, 6, 7]
 
 HTTPRequestMethod = Literal['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS']
 
