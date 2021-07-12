@@ -9,9 +9,10 @@ from ..core.enums import (
     DefaultMessageNotificationLevel,
 )
 
-from ..typings import Snowflake
+from ..typings import Snowflake, ValidDeleteMessageDays
 from ..core.connection import Connection
 from ..typings.payloads import GuildPayload
+from .member import Member
 
 from .objects import NativeObject, Timestamp
 from .asset import Asset
@@ -130,6 +131,12 @@ class Guild(NativeObject):
     @property
     def name(self, /) -> str:
         return self._name
+    
+    async def kick(self: T, member: Member, *, reason: str = None) -> None:
+        await self._connection.api.guilds(self.id).members(member.id).delete(reason=reason)
+    
+    async def ban(self: T, member: Member, *, reason: str=None, delete_message_days: ValidDeleteMessageDays = None) -> None:
+        await self._connection.api.guilds(self.id).bans(member.id).put({'delete_message_days': delete_message_days}, reason=reason)
 
     def _copy(self: T) -> T:
         return self.__class__(self._connection, self._last_received_data)
