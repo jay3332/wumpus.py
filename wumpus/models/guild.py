@@ -12,17 +12,38 @@ from ..core.enums import (
 from ..typings import Snowflake, ValidDeleteMessageDays
 from ..core.connection import Connection
 from ..typings.payloads import GuildPayload
-from .member import Member
 
+from .member import Member
+from .bitfield import InvertedBitfield, bit
 from .objects import NativeObject, Timestamp
 from .asset import Asset
-from .flags import SystemChannelFlags
+
 
 T = TypeVar('T', bound='Guild')
 
 __all__ = (
     'Guild',
 )
+
+
+class SystemChannelFlags(InvertedBitfield):
+    @bit(1)
+    def suppress_join_notifications(self, /) -> None:
+        """
+        Whether or not to suppress join notifications.
+        """
+
+    @bit(2)
+    def suppress_premium_notifications(self, /) -> None:
+        """
+        Whether or not to suppress server boost notifications.
+        """
+
+    @bit(4)
+    def suppress_guild_reminder_notifications(self, /) -> None:
+        """
+        Whether or not to suppress server setup tips.
+        """
 
 
 class Guild(NativeObject):

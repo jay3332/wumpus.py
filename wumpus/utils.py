@@ -22,7 +22,11 @@ from .models.objects import deconstruct_snowflake
 
 __all__ = (
     'maybe_coro',
-    'deconstruct_snowflake'
+    'deconstruct_snowflake',
+    '_try_int',
+    '_get_mimetype',
+    '_bytes_to_image_data',
+    'Ratelimiter'
 )
 
 
@@ -65,6 +69,28 @@ def _bytes_to_image_data(data: bytes) -> str:
     mimetype = _get_mimetype(data)
     result = b64encode(data).decode('ascii')
     return f'data:{mimetype};base64,{result}'
+
+
+@overload
+def _try_int(value: int, /) -> int:
+    ...
+
+
+@overload
+def _try_int(value: str, /) -> Optional[int]:
+    ...
+
+
+@overload
+def _try_int(value: None, /) -> None:
+    ...
+
+
+def _try_int(value, /):
+    try:
+        return int(value)
+    except (ValueError, TypeError):
+        return None
 
 
 class Ratelimiter:
