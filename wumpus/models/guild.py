@@ -16,6 +16,7 @@ from ..typings.payloads import GuildPayload
 from .member import Member
 from .bitfield import InvertedBitfield, bit
 from .objects import NativeObject, Timestamp
+from ..utils import _try_int
 from .asset import Asset
 
 
@@ -110,20 +111,20 @@ class Guild(NativeObject):
 
         self._name: Optional[str] = data.get('name')
         self._unavailable: Optional[bool] = data.get('unavailable', False)
-        self._owner_id: Optional[Snowflake] = int(data.get('owner_id'))
+        self._owner_id: Optional[Snowflake] = _try_int(data.get('owner_id'))
 
-        self._afk_channel_id: Optional[Snowflake] = int(data.get('afk_channel_id'))
+        self._afk_channel_id: Optional[Snowflake] = _try_int(data.get('afk_channel_id'))
         self._afk_timeout: Optional[int] = data.get('afk_timeout')
         
         self._widget_enabled: Optional[bool] = data.get('widget_enabled')
-        self._widget_channel_id: Optional[Snowflake] = int(data.get('widget_channel_id'))
+        self._widget_channel_id: Optional[Snowflake] = _try_int(data.get('widget_channel_id'))
         
         self._features: List[str] = data.get('features')
-        self._application_id: Optional[Snowflake] = int(data.get('application_id'))
+        self._application_id: Optional[Snowflake] = _try_int(data.get('application_id'))
 
-        self._system_channel_id: Optional[Snowflake] = int(data.get('system_channel_id'))
+        self._system_channel_id: Optional[Snowflake] = _try_int(data.get('system_channel_id'))
         self._system_channel_flags: Optional[SystemChannelFlags] = SystemChannelFlags(data.get('system_channel_flags', 0)) 
-        self._rules_channel_id: Optional[Snowflake] = int(data.get('rules_channel_id'))
+        self._rules_channel_id: Optional[Snowflake] = _try_int(data.get('rules_channel_id'))
 
         self._joined_at: Timestamp = Timestamp.fromisoformat(data.get('joined_at'))
         self._large: Optional[bool] = data.get('large')
