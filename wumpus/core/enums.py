@@ -3,7 +3,15 @@ from enum import Enum
 
 __all__ = (
     'OpCode',
-    'PremiumType'
+    'PremiumType',
+    'MemberShipstate',
+    'DefaultMessageNotificationLevel',
+    'ExplicitContentFilteringLevel',
+    'MFALevel',
+    'VerificationLevel',
+    'GuildNSFWLevel',
+    'PremiumTier',
+    'InviteTargetType'
 )
 
 
@@ -73,4 +81,10 @@ class PremiumTier(Enum):
     TIER_1 = 1
     TIER_2 = 2
     TIER_3 = 3
+
+
+class InviteTargetTypes(Enum):
+    STREAM = 1
+    EMBEDDED_APPLICATION = 2
+
 
