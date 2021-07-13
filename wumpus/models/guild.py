@@ -119,14 +119,14 @@ class Guild(NativeObject):
         self._widget_enabled: Optional[bool] = data.get('widget_enabled')
         self._widget_channel_id: Optional[Snowflake] = _try_int(data.get('widget_channel_id'))
         
-        self._features: List[str] = data.get('features')
+        self._features: Optional[List[str]] = data.get('features')
         self._application_id: Optional[Snowflake] = _try_int(data.get('application_id'))
 
         self._system_channel_id: Optional[Snowflake] = _try_int(data.get('system_channel_id'))
         self._system_channel_flags: Optional[SystemChannelFlags] = SystemChannelFlags(data.get('system_channel_flags', 0)) 
         self._rules_channel_id: Optional[Snowflake] = _try_int(data.get('rules_channel_id'))
 
-        self._joined_at: Timestamp = Timestamp.fromisoformat(data.get('joined_at'))
+        self._joined_at: Optional[Timestamp] = Timestamp.fromisoformat(data.get('joined_at'))
         self._large: Optional[bool] = data.get('large')
         self._member_count: Optional[int] = data.get('member_count')
 
@@ -148,10 +148,10 @@ class Guild(NativeObject):
         self._nsfw_level: Optional[GuildNSFWLevel] = GuildNSFWLevel(data.get('nsfw_level', 0))
         # TODO: MemberManager, RoleManager, EmojiManager, etc 
 
-        self.icon: Asset = self._load_asset('icon', data=data, entity='icons')
-        self.banner: Asset = self._load_asset('banner', data=data, entity='banners')
-        self.splash: Asset = self._load_asset('splash', data=data, entity='splashes')
-        self.discovery_splash: Asset = self._load_asset('discovery_splash', data=data, entity='discovery-splashes')
+        self.icon: Optional[Asset] = self._load_asset('icon', data=data, entity='icons')
+        self.banner: Optional[Asset] = self._load_asset('banner', data=data, entity='banners')
+        self.splash: Optional[Asset] = self._load_asset('splash', data=data, entity='splashes')
+        self.discovery_splash: Optional[Asset] = self._load_asset('discovery_splash', data=data, entity='discovery-splashes')
 
     @property
     def name(self, /) -> Optional[str]:
