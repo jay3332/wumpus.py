@@ -23,6 +23,7 @@ from .asset import Asset
 T = TypeVar('T', bound='Guild')
 
 __all__ = (
+    'SystemChannelFlags',
     'Guild',
 )
 
