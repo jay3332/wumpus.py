@@ -10,7 +10,7 @@ from .objects import NativeObject, Timestamp
 from .user import User
 
 
-class PartialinviteGuild(NativeObject):
+class PartialInviteGuild(NativeObject):
     def __init__(self, connection: Connection, data: JSON, /) -> None:
         self._connection = connection
         self._load_data(data)
@@ -25,7 +25,7 @@ class PartialinviteGuild(NativeObject):
         self._verification_level: Optional[VerificationLevel] = VerificationLevel(data.get("verification_level", 0))
 
 
-class PartialinviteChannel(NativeObject):
+class PartialInviteChannel(NativeObject):
     def __init__(self, connection: Connection, data: JSON, /) -> None:
         self._connection = connection
         self._load_data(data)
@@ -57,11 +57,11 @@ class Invite:
         self._code: str = data.get("code")
         guild = data.get("guild")
         if guild:
-            self._guild: Optional[PartialinviteGuild] = PartialinviteGuild(self._connection, guild)
+            self._guild: Optional[PartialInviteGuild] = PartialInviteGuild(self._connection, guild)
         else:
             self._guild = None
 
-        self._channel: PartialinviteChannel = PartialInviteChannel(self._connection, data.get("channel"))
+        self._channel: PartialInviteChannel = PartialInviteChannel(self._connection, data.get("channel"))
         inviter = data.get("inviter")
         if inviter:
             self._inviter: Optional[User] = User(self._connection, inviter)
