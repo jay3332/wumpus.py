@@ -50,10 +50,8 @@ setup(
     install_requires=requirements,
     extras_require={
         'docs': [
-            'sphinx>=4.0.2',
+            'sphinx>=4.1.1',
             'karma_sphinx_theme>=0.0.8',
-            'sphinxcontrib-asyncio>=0.3.0',
-            'sphinx-nervproject-theme>=2.0.4',
         ],
         'performance': [
             'orjson>=1.3.0'
