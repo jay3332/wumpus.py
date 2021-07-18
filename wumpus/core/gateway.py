@@ -7,6 +7,7 @@ import zlib
 from typing import Optional, Union
 
 import aiohttp
+import earl
 
 from ..typings import JSON
 from ..utils import Ratelimiter
@@ -113,7 +114,7 @@ class Gateway:
         """
 
         gateway_info = await connection.get_gateway_bot()
-        ws = await connection.http.session.ws_connect(gateway_info.url)
+        ws = await connection.http.session.ws_connect(gateway_info.url + "?v=9&encoding=etf&compress=zlib-stream")
 
         gateway = cls(ws)
         gateway.__token = connection.token
@@ -187,6 +188,7 @@ class Gateway:
             data = self._inflator.decompress(self._buffer)
             self._buffer = bytearray()
 
+        data = earl.unpack(data)
         message = json.loads(data)
         op = OpCode(message.get('op'))
         data = message.get('d')

@@ -18,12 +18,14 @@ from ..typings.payloads import GuildPayload
 from .member import Member
 from .bitfield import InvertedBitfield, bit
 from .objects import NativeObject, Timestamp
+from ..utils import _try_int
 from .asset import Asset
 
 
 T = TypeVar('T', bound='Guild')
 
 __all__ = (
+    'SystemChannelFlags',
     'Guild',
 )
 
@@ -112,22 +114,22 @@ class Guild(NativeObject):
 
         self._name: Optional[str] = data.get('name')
         self._unavailable: Optional[bool] = data.get('unavailable', False)
-        self._owner_id: Optional[Snowflake] = int(data.get('owner_id'))
+        self._owner_id: Optional[Snowflake] = _try_int(data.get('owner_id'))
 
-        self._afk_channel_id: Optional[Snowflake] = int(data.get('afk_channel_id'))
+        self._afk_channel_id: Optional[Snowflake] = _try_int(data.get('afk_channel_id'))
         self._afk_timeout: Optional[int] = data.get('afk_timeout')
         
         self._widget_enabled: Optional[bool] = data.get('widget_enabled')
-        self._widget_channel_id: Optional[Snowflake] = int(data.get('widget_channel_id'))
+        self._widget_channel_id: Optional[Snowflake] = _try_int(data.get('widget_channel_id'))
         
-        self._features: List[str] = data.get('features')
-        self._application_id: Optional[Snowflake] = int(data.get('application_id'))
+        self._features: Optional[List[str]] = data.get('features')
+        self._application_id: Optional[Snowflake] = _try_int(data.get('application_id'))
 
-        self._system_channel_id: Optional[Snowflake] = int(data.get('system_channel_id'))
-        self._system_channel_flags: SystemChannelFlags = SystemChannelFlags(data.get('system_channel_flags')) 
-        self._rules_channel_id: Optional[Snowflake] = int(data.get('rules_channel_id'))
+        self._system_channel_id: Optional[Snowflake] = _try_int(data.get('system_channel_id'))
+        self._system_channel_flags: Optional[SystemChannelFlags] = SystemChannelFlags(data.get('system_channel_flags', 0)) 
+        self._rules_channel_id: Optional[Snowflake] = _try_int(data.get('rules_channel_id'))
 
-        self._joined_at: Timestamp = Timestamp.fromisoformat(data.get('joined_at'))
+        self._joined_at: Optional[Timestamp] = Timestamp.fromisoformat(data.get('joined_at'))
         self._large: Optional[bool] = data.get('large')
         self._member_count: Optional[int] = data.get('member_count')
 
@@ -141,18 +143,18 @@ class Guild(NativeObject):
         self._public_updates_channel_id: Optional[Snowflake] = data.get('public_updates_channel_id')
         self._max_video_channel_users: Optional[int] = data.get('max_video_channel_users')
 
-        self._verification_level: Optional[VerificationLevel] = VerificationLevel(data.get('verification_level'))
-        self._default_message_notifications: Optional[DefaultMessageNotificationLevel] = DefaultMessageNotificationLevel(data.get('default_message_notifications'))
-        self._explicit_content_filter: Optional[ExplicitContentFilterLevel] = ExplicitContentFilterLevel(data.get('explicit_content_filter'))
-        self._mfa_level: Optional[MFALevel] = MFALevel(data.get('mfa_level'))
-        self._premium_tier: Optional[PremiumTier] = PremiumTier(data.get('premium_tier'))
-        self._nsfw_level: Optional[GuildNSFWLevel] = GuildNSFWLevel(data.get('nsfw_level'))
+        self._verification_level: Optional[VerificationLevel] = VerificationLevel(data.get('verification_level', 0))
+        self._default_message_notifications: Optional[DefaultMessageNotificationLevel] = DefaultMessageNotificationLevel(data.get('default_message_notifications', 0))
+        self._explicit_content_filter: Optional[ExplicitContentFilterLevel] = ExplicitContentFilterLevel(data.get('explicit_content_filter', 0))
+        self._mfa_level: Optional[MFALevel] = MFALevel(data.get('mfa_level', 0))
+        self._premium_tier: Optional[PremiumTier] = PremiumTier(data.get('premium_tier', 0))
+        self._nsfw_level: Optional[GuildNSFWLevel] = GuildNSFWLevel(data.get('nsfw_level', 0))
         # TODO: MemberManager, RoleManager, EmojiManager, etc 
 
-        self.icon: Asset = self._load_asset('icon', data=data, entity='icons')
-        self.banner: Asset = self._load_asset('banner', data=data, entity='banners')
-        self.splash: Asset = self._load_asset('splash', data=data, entity='splashes')
-        self.discovery_splash: Asset = self._load_asset('discovery_splash', data=data, entity='discovery-splashes')
+        self.icon: Optional[Asset] = self._load_asset('icon', data=data, entity='icons')
+        self.banner: Optional[Asset] = self._load_asset('banner', data=data, entity='banners')
+        self.splash: Optional[Asset] = self._load_asset('splash', data=data, entity='splashes')
+        self.discovery_splash: Optional[Asset] = self._load_asset('discovery_splash', data=data, entity='discovery-splashes')
 
     @property
     def name(self, /) -> Optional[str]:
