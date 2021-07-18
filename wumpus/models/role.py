@@ -3,6 +3,7 @@ from typing import Optional, Any, TypeVar, Union
 from .color import Color
 from .guild import Guild
 from .objects import NativeObject
+from .permissions import Permissions
 
 from ..core.connection import Connection
 from ..typings import JSON, Snowflake
@@ -62,6 +63,7 @@ class Role(NativeObject):
     """
     
     def __init__(self: T, connection: Connection, guild: Guild, data: JSON, /) -> None:
+        super().__init__()
         self._guild: Guild = guild
         self._connection = connection
         self._load_data(data)
@@ -73,11 +75,12 @@ class Role(NativeObject):
         self._color: Color = Color(data['color'])
         self._hoist: bool = data['hoist']
         self._position: int = data['position']
-        self._permissions: int = data['permissions']
         self._managed: bool = data['managed']
         self._mentionable: bool = data['mentionable']
+
         self._tags: RoleTags = RoleTags(data.get('tags'))
-    
+        self._permissions: Permissions = Permissions(data.get('permissions', 0))
+
     @property
     def guild(self, /) -> Guild: 
         return self._guild

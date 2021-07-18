@@ -9,8 +9,10 @@ from ..core.enums import (
     DefaultMessageNotificationLevel,
 )
 
-from ..typings import Snowflake, ValidDeleteMessageDays
 from ..core.connection import Connection
+from ..core.http import Router
+
+from ..typings import Snowflake, ValidDeleteMessageDays
 from ..typings.payloads import GuildPayload
 
 from .member import Member
@@ -268,11 +270,15 @@ class Guild(NativeObject):
     def nsfw_level(self, /) -> Optional[GuildNSFWLevel]:
         return self._nsfw_level
 
+    @property
+    def _api(self, /) -> Router:
+        return self._connection.api.guilds(self.id)
+
     async def kick(self: T, member: Member, *, reason: str = None) -> None:
-        await self._connection.api.guilds(self.id).members(member.id).delete(reason=reason)
+        await self._api.members(member.id).delete(reason=reason)
     
-    async def ban(self: T, member: Member, *, reason: str=None, delete_message_days: ValidDeleteMessageDays = None) -> None:
-        await self._connection.api.guilds(self.id).bans(member.id).put({'delete_message_days': delete_message_days}, reason=reason)
+    async def ban(self: T, member: Member, *, reason: str = None, delete_message_days: ValidDeleteMessageDays = None) -> None:
+        await self._api.bans(member.id).put({'delete_message_days': delete_message_days}, reason=reason)
 
     def _copy(self: T) -> T:
         return self.__class__(self._connection, self._last_received_data)
