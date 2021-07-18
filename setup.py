@@ -51,7 +51,7 @@ setup(
     extras_require={
         'docs': [
             'sphinx>=4.1.1',
-            'pydata-sphinx-theme>=0.6.3',
+            'furo',
         ],
         'performance': [
             'orjson>=1.3.0'
