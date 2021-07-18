@@ -8,7 +8,7 @@ A asynchronous wrapper of the Discord API.
 
 **Wumpus.py documentation**
 
-..toctree::
+.. toctree::
     :maxdepth: 2
     :caption: You can view documentation of the core library here.
 
