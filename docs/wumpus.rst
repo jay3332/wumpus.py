@@ -1,4 +1,4 @@
-Wumpus.py Documentation
+Wumpus.py API Reference
 =======================
 
 Client
@@ -98,4 +98,11 @@ Enums
     :members:
 
 .. autoclass:: wumpus.GuildFeature
+    :members:
+
+
+Errors
+------
+
+.. automodule:: wumpus.errors
     :members:

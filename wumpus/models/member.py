@@ -1,14 +1,18 @@
-from datetime import datetime
-from typing import Optional, List
+from __future__ import annotations
 
-from .role import Role
+from datetime import datetime
+from typing import Optional, List, TYPE_CHECKING
+
 from .user import User
-from .guild import Guild
 from .permissions import Permissions
 from .objects import NativeObject, Timestamp
 
 from ..core.connection import Connection
 from ..typings import JSON, ValidDeleteMessageDays
+
+if TYPE_CHECKING:
+    from .guild import Guild
+    from .role import Role
 
 
 class Member(NativeObject):

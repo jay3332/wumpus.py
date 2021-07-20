@@ -1,7 +1,8 @@
-from typing import Optional, Any, TypeVar, Union
+from __future__ import annotations
+
+from typing import Any, Optional, TypeVar, Union, TYPE_CHECKING
 
 from .color import Color
-from .guild import Guild
 from .objects import NativeObject
 from .permissions import Permissions
 
@@ -9,6 +10,9 @@ from ..core.connection import Connection
 from ..core.http import Router
 
 from ..typings import JSON, Snowflake
+
+if TYPE_CHECKING:
+    from .guild import Guild
 
 
 T = TypeVar('T', bound='Role')
