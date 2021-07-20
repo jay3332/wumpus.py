@@ -15,6 +15,18 @@ T = TypeVar('T', bound='Role')
 
 
 class RoleTags:
+    """Represents the tags of a Discord role.
+
+    Attributes
+    ----------
+    bot_id: Snowflake
+        The ID of the bot that manages this role, if any.
+    integration_id: Snowflake
+        The ID of the integration that manages this role, if any.
+    premium_subscriber: bool
+        Whether or not this role is the "Nitro Booster" role.
+    """
+
     def __init__(self, data: JSON, /) -> None:
         self._load_data(data)
     
@@ -52,7 +64,7 @@ class Role(NativeObject):
         The guild this role belongs to.
     position: int
         The position of this role.
-    permissions: :class:`Permissions`
+    permissions: :class:`.Permissions`
         The permissions this role has.
     managed: bool
         Whether the role is managed by the guild.
@@ -123,28 +135,71 @@ class Role(NativeObject):
         return self
 
     async def move(self: T, /, position: int, *, reason: str = None) -> T:
+        """|coro|
+
+        Changes the position of this role.
+
+        Parameters
+        ----------
+        position: int
+            The new position to update to.
+        reason: str
+            The audit log reason to use.
+        """
         return await self._patch({'position': position}, reason=reason)
     
     async def rename(self: T, name: str, /, *, reason: str = None) -> T:
+        """|coro|
+
+        Changes the name of this role.
+
+        Parameters
+        ----------
+        name: int
+            The new name to update to.
+        reason: str
+            The audit log reason to use.
+        """
         return await self._patch({'name': name}, reason=reason)
 
     async def edit(
         self: T, 
         *,
         name: Optional[None] = None, 
-        permissions: Optional[str] = None, 
-        color: Optional[Union[Color, int]] = None, 
+        permissions: Optional[Union[Permissions, int]] = None,
+        color: Optional[Union[Color, int]] = None,
         hoist: Optional[bool] = None, 
         mentionable: Optional[bool] = None,
         reason: Optional[str] = None
     ) -> T:
+        """|coro|
+
+        Modifies and edits this role.
+        All parameters are optional and keyword-only.
+
+        Parameters
+        ----------
+        name: str
+            The new name of the role.
+        permissions: Union[:class:`.Permissions`, int]
+            The new permissions of the role.
+        color: Union[:class:`.Color`, int]
+            The new color of the role.
+        hoist: bool
+            Whether or not to hoist the role.
+        mentionable: bool
+            Whether or not to make this role mentionable.
+        reason: str
+            The audit log reason to use.
+        """
+
         payload = {}
 
         if name is not None:
             payload['name'] = name
 
         if permissions is not None:
-            payload['permissions'] = permissions
+            payload['permissions'] = int(permissions)
 
         if color is not None:
             payload['color'] = color.value if isinstance(color, Color) else color
@@ -158,4 +213,13 @@ class Role(NativeObject):
         return await self._patch(payload, reason=reason)
     
     async def delete(self: T, /, *, reason: str = None) -> None:
+        """|coro|
+
+        Deletes this role.
+
+        Parameters
+        ----------
+        reason: str
+            The audit log reason to use.
+        """
         await self._api.delete(reason=reason)

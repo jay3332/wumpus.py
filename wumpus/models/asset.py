@@ -66,7 +66,12 @@ BlankAssetInfo = AssetInfo()
 
 
 class Asset(BaseAsset):
-    # TODO: easier way to modify :class:`AssetInfo`
+    """
+    Represents an image representing something inside of Discord.
+    """
+
+    # TODO: easier way to modify :class:`.AssetInfo`
+    # TODO: :meth:`.Asset.read` and :meth:`.Asset.save`
 
     __slots__ = ('_connection', '_params', '_animated', '_url', '_hash')
 
@@ -88,10 +93,12 @@ class Asset(BaseAsset):
 
     @property
     def base_url(self, /) -> str:
+        """str: The base URL with no extension or query parameters, that this asset uses."""
         return self.__cdn_url__ + self._url
 
     @property
     def url(self, /) -> str:
+        """str: The CDN url of this asset."""
         if not len(self._info):
             return self.base_url
 
@@ -103,26 +110,32 @@ class Asset(BaseAsset):
 
     @property
     def animated(self, /) -> str:
+        """bool: Whether or not this asset is animated."""
         return self._animated
 
     @property
     def hash(self, /) -> str:
+        """str: The hash of this asset, if any."""
         return self._hash
 
     @property
     def static_format(self, /) -> StaticFormatTypes:
+        """str: The static format of this asset."""
         return self._info.static_format or 'png'
 
     @property
     def default_format(self, /) -> FormatTypes:
+        """str: The default format of this asset."""
         return 'gif' if self._animated else self.static_format
 
     @property
     def format(self, /) -> FormatTypes:
+        """str: The format of this asset."""
         return self._info.format or self.default_format
 
     @property
     def size(self, /) -> AssetSizes:
+        """Optional[int]: The size of this asset."""
         return self._info.size
 
     def _copy(self: T, info: AssetInfo, /) -> T:
@@ -135,14 +148,50 @@ class Asset(BaseAsset):
         )
 
     def with_format(self: T, format: FormatTypes, /) -> T:
+        """Return a copy of this asset with the given format.
+
+        Parameters
+        ----------
+        format: str
+            The new format of the asset.
+
+        Returns
+        -------
+        :class:`.Asset`
+        """
+
         new_info = _make_asset_info(format, self._info.size, self._info.static_format)
         return self._copy(new_info)
 
     def with_size(self: T, size: AssetSizes, /) -> T:
+        """Return a copy of this asset with the given size.
+
+        Parameters
+        ----------
+        size: int
+            The new size of the asset.
+
+        Returns
+        -------
+        :class:`.Asset`
+        """
+
         new_info = _make_asset_info(self._info.format, size, self._info.static_format)
         return self._copy(new_info)
 
     def with_static_format(self: T, static_format: StaticFormatTypes, /) -> T:
+        """Return a copy of this asset with the given static format.
+
+       Parameters
+       ----------
+       static_format: str
+           The new static format of the asset.
+
+       Returns
+       -------
+       :class:`.Asset`
+       """
+
         new_info = _make_asset_info(self._info.format, self._info.size, static_format)
         return self._copy(new_info)
 
@@ -154,6 +203,23 @@ class Asset(BaseAsset):
         size: AssetSizes = None,
         static_format: StaticFormatTypes = None
     ) -> T:
+        """Return a copy of this asset with replaced attributes.
+        All parameters are positional only and optional.
+
+       Parameters
+       ----------
+       format: str
+           The new format of the asset.
+        size: int
+            The new size of the asset.
+        static_format: str
+            The new static format of the asset.
+
+       Returns
+       -------
+       :class:`.Asset`
+       """
+
         new_info = _make_asset_info(
             format or self._info.format,
             size or self._info.size,

@@ -1,3 +1,4 @@
 from .client import Client, Emitter
-from .manager import BaseManager, UserManager, GuildManager
+from .http import Router
+from .manager import BaseManager, CacheBasedManager, UserManager, GuildManager
 from .enums import *

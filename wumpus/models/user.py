@@ -37,8 +37,8 @@ class PartialUser(NativeObject):
         try:
             _avatar_hash = data['avatar']
         except KeyError:
-            self._avatar = None
             self.__avatar_hash = None
+            self._avatar = Asset(self._connection, url=f'embed/avatars/{self._discriminator % 5}')
         else:
             self.__avatar_hash: str = _avatar_hash
             _avatar_animated = _avatar_hash.startswith('a_')
@@ -56,33 +56,46 @@ class PartialUser(NativeObject):
 
     @property
     def name(self) -> str:
+        """str: The user's username."""
         return self._name
 
     @property
     def discriminator(self) -> str:
+        """str: The user's discriminator."""
         return self._discriminator
 
     @property
     def avatar(self) -> Asset:
+        """:class:`.Asset`: The user's display avatar."""
         return self._avatar
 
     @property
     def tag(self) -> str:
+        """str: The user's name and discriminator in the conventional name#discrim format."""
         return f'{self.name}#{self.discriminator}'
 
     @property
     def mention(self) -> str:
+        """str: The mention format of the user."""
         return f'<@{self.id}>'
 
     @property
     def bot(self) -> bool:
+        """bool: Whether or not this user is a bot."""
         return self._bot
 
     @property
     def system(self) -> bool:
+        """bool: Whether or not this user is an official system account."""
         return self._system
 
     def to_dict(self, /) -> PartialUserPayload:
+        """Converts this user into a raw dictionary that can be sent to Discord.
+
+        Returns
+        -------
+        JSON
+        """
         payload = {
             'id': self.id,
             'name': self.name,
@@ -103,7 +116,7 @@ class PartialUser(NativeObject):
     def __repr__(self) -> str:
         return f'<{self.__class__.__name__} name={self.name!r} discriminator={self.discriminator!r} id={self.id}>'
 
-    def __format__(self, format: UserFormat) -> str:
+    def __format__(self, format: UserFormat, /) -> str:
         format = format.lower()
 
         if not format or format == 't':
@@ -118,6 +131,10 @@ class PartialUser(NativeObject):
 
 
 class ClientUser(PartialUser):
+    """
+    Represents the user that represents the client.
+    """
+
     __slots__ = PartialUser.__slots__
 
     def _load_data(self, data: UserPayload) -> None:
@@ -129,14 +146,17 @@ class ClientUser(PartialUser):
 
     @property
     def mfa_enabled(self, /) -> bool:
+        """bool: Whether or not 2 factor authentication is enabled on this account."""
         return self._mfa_enabled
 
     @property
     def verified(self, /) -> bool:
+        """bool: Whether or not this account has a verified email."""
         return self._verified
 
     @property
     def locale(self, /) -> Optional[str]:
+        """str: The locale (language choice) of this user."""
         return self._locale
 
     def to_dict(self, /) -> UserPayload:
@@ -150,6 +170,19 @@ class ClientUser(PartialUser):
             payload['locale'] = self.locale
 
     async def edit(self, /, *, name: str = None, avatar: Union[str, bytes] = ...) -> None:
+        """|coro|
+
+        Changes the name and/or avatar of this user.
+        All parameters are keyword only, and they are all optional.
+
+        Parameters
+        ----------
+        name: str
+            The username to change to.
+        avatar: Union[bytes, str]
+            The avatar to change to. This can be a raw byte string, or
+            a file path that leads to the image.
+        """
         payload = {}
         if name is not None:
             payload['username'] = name
@@ -171,6 +204,10 @@ class ClientUser(PartialUser):
 
 
 class User(PartialUser, Messageable):
+    """
+    Represents a Discord user.
+    """
+
     __slots__ = PartialUser.__slots__
 
     def _load_data(self, data: PartialUserPayload) -> None:
@@ -178,6 +215,12 @@ class User(PartialUser, Messageable):
         super()._load_data(data)
 
     async def create_dm(self, /) -> ...:
+        """|coro|
+
+        Opens a DM with this user. This is implicitly called,
+        this should not be used frequently.
+        """
+
         payload = {
             'recipient_id': self.id
         }

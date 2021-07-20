@@ -150,6 +150,10 @@ def deconstruct_snowflake(snowflake: int) -> _DeconstructedSnowflake:
 
 
 class Object:
+    """
+    Represents a Discord object.
+    """
+
     def __init__(self, id: Snowflake = None, /) -> None:
         if id is not None:
             self.__id: Snowflake = int(id)
@@ -164,10 +168,12 @@ class Object:
         
     @property
     def id(self, /) -> Snowflake:
+        """Snowflake: The snowflake ID of this object."""
         return self.__id
 
     @property
     def created_at(self, /) -> Timestamp:
+        """:class:`.Timestamp`: The creation timestamp of this object."""
         self.__deconstruct()
         return self.__dc.created_at
 

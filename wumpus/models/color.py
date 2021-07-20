@@ -160,6 +160,11 @@ CSS_COLORS = {
 class Color:
     """
     Represents a color.
+
+    Attributes
+    ----------
+    value: int
+        The decimal representation of this color.
     """
 
     def __init__(self, value: Union[int, str], /) -> None:
@@ -176,32 +181,83 @@ class Color:
     
     @property
     def r(self: Type[T]) -> int:
+        """int: The R value for when this color is represented in RGB."""
         return self._get_color_byte(2)
     
     @property
     def g(self: Type[T]) -> int:
+        """int: The G value for when this color is represented in RGB."""
         return self._get_color_byte(1)
     
     @property
     def b(self: Type[T]) -> int:
+        """int: The B value for when this color is represented in RGB."""
         return self._get_color_byte(0)
 
     @classmethod
     def from_rgb(cls: Type[T], r: int, g: int, b: int) -> T:
+        """Generates a :class:`.Color` from RGB values.
+
+        Parameters
+        ----------
+        r: int
+            The R value
+        g: int
+            The G value
+        b: int
+            The B value
+
+        Returns
+        -------
+        :class:`.Color`
+        """
         return cls((r << 16) + (g << 8) + b)
 
     def to_rgb(self, /) -> Tuple[int, int, int]:
+        """Turns this color into an RGB tuple.
+
+        Returns
+        -------
+        Tuple[int, int, int]
+        """
         return self.r, self.g, self.b
 
     def invert(self: T, /) -> T:
+        """Returns an inverted version of this color.
+
+        Returns
+        -------
+        :class:`.Color`
+        """
         return self.__class__.from_rgb(255 - self.r, 255 - self.g, 255 - self.b)
 
     @classmethod
     def from_hsv(cls: Type[T], h: float, s: float, v: float) -> T:
+        """Generates a :class:`.Color` from HSV values.
+
+        Parameters
+        ----------
+        h int
+           The H value
+        s: int
+           The S value
+        v: int
+           The V value
+
+        Returns
+        -------
+        :class:`.Color`
+        """
         rgb = tuple(int(i * 255) for i in colorsys.hsv_to_rgb(h, s, v))
         return cls.from_rgb(*rgb)
     
     def to_hsv(self, /) -> Tuple[float, float, float]:
+        """Turns this color into an HSV tuple.
+
+        Returns
+        -------
+        Tuple[int, int, int]
+        """
         return colorsys.rgb_to_hsv(self.r / 255, self.g / 255, self.b / 255)
 
     @classmethod
