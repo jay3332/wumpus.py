@@ -56,7 +56,7 @@ class HeartbeatManager:
     
     async def heartbeat(self) -> None:
         payload = {
-            'op': OpCode.HEARTBEAT.value,
+            'op': OpCode.heartbeat.value,
             'd': self._gateway._seq,
         }
         await self._gateway.send(payload, force=True) # Heartbeat should be send no matter what.
@@ -146,7 +146,7 @@ class Gateway:
     
     async def identify(self, /) -> None:
         payload = {
-            "op": OpCode.IDENTIFY.value,
+            "op": OpCode.identify.value,
             "d": {
                 "token": self.__token,
                 "properties": {
@@ -170,7 +170,7 @@ class Gateway:
     
     async def resume(self) -> None:
         payload = {
-            'op': OpCode.RESUME.value,
+            'op': OpCode.resume.value,
             'd': {
                 'seq': self._seq,
                 'session_id': self._session_id,
@@ -197,21 +197,21 @@ class Gateway:
         if seq is not None:
             self._seq = seq
 
-        if op is OpCode.RECONNECT:
+        if op is OpCode.reconnect:
             raise Reconnect()
 
-        elif op is OpCode.HEARTBEAT_ACK:
+        elif op is OpCode.heartbeat_ack:
             self._keep_alive.ack()
 
-        elif op is OpCode.HEARTBEAT:
+        elif op is OpCode.heartbeat:
             await self._keep_alive.heartbeat()
 
-        elif op is OpCode.HELLO:
+        elif op is OpCode.hello:
             self.heartbeat_interval = data['heartbeat_interval'] / 1000  # For seconds
             self._keep_alive = HeartbeatManager(self)
             await self._keep_alive.heartbeat()
 
-        elif op is OpCode.INVALIDATE_SESSION:
+        elif op is OpCode.invalidate_session:
             if data is not True:
                 # We need to send a fresh Identify
                 self._seq = None
@@ -219,7 +219,7 @@ class Gateway:
                 raise Reconnect(resume=False)
             raise Reconnect()
 
-        elif op is OpCode.DISPATCH:
+        elif op is OpCode.dispatch:
             event = message.get('t')
             return self._emitter.handle(event, data)
 

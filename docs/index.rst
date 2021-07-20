@@ -4,7 +4,7 @@ Welcome to wumpus.py's documentation!
 
 wumpus.py
 =========
-A asynchronous wrapper of the Discord API.
+A asynchronous wrapper around Discord's API.
 
 **Wumpus.py documentation**
 

@@ -77,11 +77,14 @@ class Bitfield(metaclass=BitfieldMeta):
         for key, value in self.__class__.__mapping__.items():
             yield key, self._has(value)
 
-    def __getitem__(self, key: int, /) -> bool:       
-        return self._has(key)
+    def __getitem__(self, key: str, /) -> bool:
+        return getattr(self, key, False)
 
-    def __setitem__(self, key: int, toggle: bool, /) -> None:
-        self._set(key, toggle)
+    def __setitem__(self, key: str, toggle: bool, /) -> None:
+        setattr(self, key, toggle)
+
+    def __delitem__(self, key: str, /) -> None:
+        self[key] = False
 
     def _has(self, other: int, /) -> bool:
         return (self._value & other) == other
@@ -92,6 +95,11 @@ class Bitfield(metaclass=BitfieldMeta):
         else:
             self._value &= ~other
 
+        return self._value
+
+    @property
+    def value(self, /) -> int:
+        """int: The internal value this bitfield represents."""
         return self._value
 
     @classmethod
@@ -121,7 +129,7 @@ class InvertedBitfield(Bitfield):
     """
 
     def __init__(self, value: int = None, /):
-        self._value: int = value or self.__class__.__max_value__
+        super().__init__(value or self.__class__.__max_value__)
 
     def _has(self, other: int, /) -> bool:
         return not super()._has(other)

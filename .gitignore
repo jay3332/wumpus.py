@@ -6,3 +6,4 @@ tests/
 .replit
 dist/
 wumpus.py.egg-info/
+*.egg-info

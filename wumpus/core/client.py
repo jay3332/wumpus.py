@@ -6,7 +6,12 @@ from typing import Callable, Dict, List, NamedTuple, Optional, Union, overload
 
 from .http import Router
 from .connection import Connection
-from ..typings.core import HTTPVersion, GatewayVersion, EmitterCallback
+
+from ..models.user import ClientUser
+from ..models.guild import GuildPreview
+from ..models.intents import Intents
+
+from ..typings.core import Snowflake, HTTPVersion, GatewayVersion, EmitterCallback
 
 
 __all__ = (
@@ -62,7 +67,7 @@ class Client(Emitter):
     def __init__(
         self,
         *,
-        # intents: Intents = None,
+        intents: Intents = None,
         # allowed_mentions: AllowedMentions = None,
         http_version: HTTPVersion = 9,
         gateway_version: GatewayVersion = 9,
@@ -70,6 +75,7 @@ class Client(Emitter):
     ) -> None:
         super().__init__()
         self._loop: AbstractEventLoop = loop or get_event_loop()
+        self._intents: Intents = intents or Intents.default()
         self._connection: Connection = None
 
         self._http_version: int = http_version
@@ -77,20 +83,51 @@ class Client(Emitter):
 
     @property
     def loop(self) -> AbstractEventLoop:
+        """asyncio.AbstractEventLoop: The event loop this client is using."""
         return self._loop
 
     @property
     def api(self) -> Optional[Router]:
+        """:class:`.Router`: The HTTP API router this client uses."""
         return self._connection.api if self._connection else None
 
     @property
     def user(self) -> ClientUser:  # type: ignore
+        """:class:`.ClientUser` The Discord user this client represents."""
         return self._connection.user
 
-    def _establish_connection(self) -> None:
+    def _establish_connection(self, *, force: bool = False) -> None:
+        if self._connection is not None and not force:
+            return
         self._connection = Connection(self._loop)
 
     async def login(self, token: str = None, /) -> None:
+        """|coro|
+
+        Establishes an HTTP session to Discord.
+        """
+
         self._establish_connection()
         self._connection.establish_http(token, v=self._http_version)
         await self._connection.update_user()
+
+    async def fetch_guild_preview(self, /, id: Snowflake) -> GuildPreview:
+        """|coro|
+
+        Fetches a :class:`.GuildPreview` by it's ID.
+
+        .. note::
+             If the client is not in the guild, then the guild must be lurkable.
+
+        Parameters
+        ----------
+        id: Snowflake
+            The snowflake ID of the guild to fetch.
+
+        Returns
+        -------
+        :class:`.GuildPreview`
+        """
+
+        data = await self.api.guilds(id).preview.get()
+        return GuildPreview(self._connection, data=data)

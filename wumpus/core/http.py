@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import asyncio
 
+from urllib.parse import quote
 from aiohttp import ClientSession
-from typing import Any, Awaitable, Dict, Optional, TypeVar
+from typing import Any, Awaitable, Dict, Optional, TypeVar, Union
 
 from ..typings.core import JSON, HTTPRequestMethod
 from ..errors import *
@@ -49,8 +50,8 @@ class Router:
         new_route = self.__route + '/' + route
         return self._construct(new_route)
 
-    def __call__(self: RT, id: int, /) -> RT:
-        new_route = self.__route + '/' + str(id)
+    def __call__(self: RT, entity: Union[str, int], /) -> RT:
+        new_route = self.__route + '/' + quote(str(entity))
         return self._construct(new_route)
         
     def request(

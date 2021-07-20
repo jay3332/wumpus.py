@@ -7,26 +7,29 @@ from ..core.enums import (
     VerificationLevel, 
     ExplicitContentFilterLevel, 
     DefaultMessageNotificationLevel,
+    GuildFeature
 )
 
 from ..core.connection import Connection
 from ..core.http import Router
 
 from ..typings import Snowflake, ValidDeleteMessageDays
-from ..typings.payloads import GuildPayload
+from ..typings.payloads import GuildPayload, GuildPreviewPayload
 
 from .member import Member
 from .bitfield import InvertedBitfield, bit
 from .objects import NativeObject, Timestamp
-from ..utils import _try_int
 from .asset import Asset
 
+from ..utils import _try_int, _bytes_to_image_data
 
-T = TypeVar('T', bound='Guild')
+
+T = TypeVar('T', bound='GuildPreview')
 
 __all__ = (
     'SystemChannelFlags',
     'Guild',
+    'GuildPreview'
 )
 
 
@@ -50,16 +53,83 @@ class SystemChannelFlags(InvertedBitfield):
         """
 
 
-class Guild(NativeObject):
+# noinspection PyTypedDict
+class GuildPreview(NativeObject):
     __slots__ = (
         '_name',
+        '_emojis',
+        '_features',
+        '_member_count',
+        '_presence_count',
+        '_features',
+        '_description',
+        'icon',
+        'splash',
+        'discovery_splash'
+    ) + NativeObject.__slots__
+
+    def __init__(self, connection: Connection, /, data: GuildPreviewPayload) -> None:
+        self._connection: Connection = connection
+        self._last_received_data: GuildPreviewPayload = {}
+        self._load_data(data)
+        super().__init__()
+
+    def _load_asset(self, key: str, /, *, data: GuildPreviewPayload, entity: str) -> Asset:
+        _hash = data.get(key)
+
+        if _hash is None:
+            return
+
+        animated = _hash.startswith('a_')
+        return Asset(
+            self._connection,
+            url=f'{entity}/{self.id}/{_hash}',
+            animated=animated,
+            hash=_hash
+        )
+
+    def _load_data(self, data: GuildPayload) -> None:
+        self._last_received_data |= data
+        self._put_snowflake(data['id'])
+
+        self._name: Optional[str] = data.get('name')
+        self._features: List[GuildFeature] = [GuildFeature(feature) for feature in data.get('features', [])]
+        self._description: Optional[str] = data.get('description')
+
+        self.icon: Optional[Asset] = self._load_asset('icon', data=data, entity='icons')
+        self.splash: Optional[Asset] = self._load_asset('splash', data=data, entity='splashes')
+        self.discovery_splash: Optional[Asset] = self._load_asset('discovery_splash', data=data, entity='discovery-splashes')
+
+    @property
+    def name(self, /) -> Optional[str]:
+        return self._name
+
+    @property
+    def features(self, /) -> List[GuildFeature]:
+        return self._features
+
+    @property
+    def description(self, /) -> Optional[str]:
+        return self._description
+
+    def _copy(self: T) -> T:
+        return self.__class__(self._connection, self._last_received_data)
+
+    def __str__(self, /) -> str:
+        return self.name
+
+    def __repr__(self, /) -> str:
+        return f'<Guild name={self.name!r} id={self.id}>'
+
+
+class Guild(GuildPreview):
+    __slots__ = (
         '_unavailable',
         '_owner_id',
         '_afk_channel_id',
         '_afk_timeout',
         '_widget_enabled',
         '_widget_channel_id',
-        '_features',
         '_application_id',
         '_system_channel_id',
         '_system_channel_flags',
@@ -71,7 +141,6 @@ class Guild(NativeObject):
         '_max_members',
         '_explicit_content_filter',
         '_vanity_url_code',
-        '_description',
         '_premium_subscription_count',
         '_preferred_locale',
         '_public_updates_channel_id',
@@ -82,37 +151,15 @@ class Guild(NativeObject):
         '_mfa_level',
         '_premium_tier',
         '_nsfw_level',
-        'icon',
         'banner',
-        'splash',
-        'discovery_splash'
-    ) + NativeObject.__slots__
+    ) + GuildPreview.__slots__
 
     def __init__(self, connection: Connection, /, data: GuildPayload) -> None:
-        self._connection: Connection = connection
-        self._last_received_data: GuildPayload = {}
-        self._load_data(data)
-        super().__init__()
-
-    def _load_asset(self, key: str, /, *, data: GuildPayload, entity: str) -> Asset:
-        _hash = data.get(key)
-
-        if _hash is not None:
-            animated = _hash.startswith('a_')
-            return Asset(
-                self._connection,
-                url=f'{entity}/{self.id}/{_hash}',
-                animated=animated,
-                hash=_hash
-            )
-        else:
-            return None
+        super().__init__(connection, data=data)
 
     def _load_data(self, data: GuildPayload) -> None:
-        self._last_received_data |= data
-        self._put_snowflake(data['id'])
+        super()._load_data(data)
 
-        self._name: Optional[str] = data.get('name')
         self._unavailable: Optional[bool] = data.get('unavailable', False)
         self._owner_id: Optional[Snowflake] = _try_int(data.get('owner_id'))
 
@@ -137,7 +184,6 @@ class Guild(NativeObject):
         self._max_members: Optional[int] = data.get('max_members')
 
         self._vanity_url_code: Optional[str] = data.get('vanity_url_code')
-        self._description: Optional[str] = data.get('description')
         self._premium_subscription_count: Optional[int] = data.get('premium_subscription_count')
         self._preferred_locale: Optional[str] = data.get('preferred_locale')
         self._public_updates_channel_id: Optional[Snowflake] = data.get('public_updates_channel_id')
@@ -151,14 +197,7 @@ class Guild(NativeObject):
         self._nsfw_level: Optional[GuildNSFWLevel] = GuildNSFWLevel(data.get('nsfw_level', 0))
         # TODO: MemberManager, RoleManager, EmojiManager, etc 
 
-        self.icon: Optional[Asset] = self._load_asset('icon', data=data, entity='icons')
         self.banner: Optional[Asset] = self._load_asset('banner', data=data, entity='banners')
-        self.splash: Optional[Asset] = self._load_asset('splash', data=data, entity='splashes')
-        self.discovery_splash: Optional[Asset] = self._load_asset('discovery_splash', data=data, entity='discovery-splashes')
-
-    @property
-    def name(self, /) -> Optional[str]:
-        return self._name
     
     @property
     def unavailable(self, /) -> bool:
@@ -183,11 +222,7 @@ class Guild(NativeObject):
     @property
     def widget_channel_id(self, /) -> Optional[Snowflake]:
         return self._widget_channel_id
-    
-    @property
-    def features(self, /) -> Optional[List[str]]:
-        return self._features
-    
+
     @property
     def application_id(self, /) -> Optional[Snowflake]:
         return self._application_id
@@ -227,10 +262,6 @@ class Guild(NativeObject):
     @property
     def vanity_url_code(self, /) -> Optional[str]:
         return self._vanity_url_code
-    
-    @property
-    def description(self, /) -> Optional[str]:
-        return self._description
     
     @property
     def premium_subscription_count(self, /) -> Optional[int]:
@@ -282,11 +313,38 @@ class Guild(NativeObject):
     async def ban(self: T, member: Member, *, reason: str = None, delete_message_days: ValidDeleteMessageDays = None) -> None:
         await self._api.bans(member.id).put({'delete_message_days': delete_message_days}, reason=reason)
 
-    def _copy(self: T) -> T:
-        return self.__class__(self._connection, self._last_received_data)
+    async def leave(self, /) -> None:
+        await self._connection.api.users.me.guilds.delete()
 
-    def __str__(self, /) -> str:
-        return self.name
+    async def delete(self, /) -> None:
+        await self._api.delete()
 
-    def __repr__(self, /) -> str:
-        return f'<Guild name={self.name!r} id={self.id}>'
+    async def edit(
+        self,
+        /,
+        *,
+        name: str = None,
+        verification_level: VerificationLevel = ...,
+        icon: bytes = None,
+        reason: str = None
+        # TODO: Implement rest
+    ) -> None:
+        payload = {}
+
+        if name is not None:
+            payload['name'] = name
+
+        if verification_level is not None:
+            payload['verification_level'] = verification_level.value
+
+        if icon is not ...:
+            if isinstance(icon, str):
+                with open(icon, 'rb') as fp:
+                    icon = fp.read()
+
+            if isinstance(icon, bytes):
+                icon = _bytes_to_image_data(icon)
+
+            payload['icon'] = icon
+
+        await self._api.patch(payload, reason=reason)

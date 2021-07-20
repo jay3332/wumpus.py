@@ -168,6 +168,12 @@ class PartialEmoji(Object):
             connection=connection
         )
 
+    def _to_route(self, /) -> str:
+        if not self.id:
+            return self.name
+
+        return f'{self.name}:{self.id}'
+
     def __str__(self, /) -> str:
         if self.is_unicode():
             return self.name
@@ -185,8 +191,10 @@ class Emoji(NativeObject):
     
     Attributes
     ----------
-    id: :class:`int`
-    name: :class:`str`
+    id: int
+        The snowflake ID of this emoji.
+    name: str
+        The name of this emoji.
     roles: List[:class:`int`]
     user: :class:`.User`
     require_colons: :class:`bool`

@@ -6,6 +6,8 @@ from .objects import NativeObject
 from .permissions import Permissions
 
 from ..core.connection import Connection
+from ..core.http import Router
+
 from ..typings import JSON, Snowflake
 
 
@@ -46,7 +48,7 @@ class Role(NativeObject):
         The Snowflake ID of this role.
     name: str
         The name of this role.
-    guild: :class:`Guild`
+    guild: :class:`.Guild`
         The guild this role belongs to.
     position: int
         The position of this role.
@@ -56,7 +58,7 @@ class Role(NativeObject):
         Whether the role is managed by the guild.
     mentionable: bool
         Whether this role is mentionable.
-    color: :class:`Color`
+    color: :class:`.Color`
         The color of this role.
     hoist: bool
         Whether this role is hoisted.
@@ -80,6 +82,10 @@ class Role(NativeObject):
 
         self._tags: RoleTags = RoleTags(data.get('tags'))
         self._permissions: Permissions = Permissions(data.get('permissions', 0))
+
+    @property
+    def _api(self, /) -> Router:
+        return self._connection.api.guilds(self.guild.id).roles(self.id)
 
     @property
     def guild(self, /) -> Guild: 
@@ -112,7 +118,7 @@ class Role(NativeObject):
         return self._mentionable
 
     async def _patch(self: T, payload: JSON, /, *, reason: str = None) -> T:
-        response = await self._connection.api.guilds(self.guild.id).roles(self.id).patch(payload, reason=reason)
+        response = await self._api.patch(payload, reason=reason)
         self._load_data(response)
         return self
 
@@ -152,4 +158,4 @@ class Role(NativeObject):
         return await self._patch(payload, reason=reason)
     
     async def delete(self: T, /, *, reason: str = None) -> None:
-        await self._connection.api.guilds(self.guild.id).roles(self.id).delete(reason=reason)
+        await self._api.delete(reason=reason)

@@ -174,6 +174,7 @@ class User(PartialUser, Messageable):
     __slots__ = PartialUser.__slots__
 
     def _load_data(self, data: PartialUserPayload) -> None:
+        self._dm_channel_id: int = None
         super()._load_data(data)
 
     async def create_dm(self, /) -> ...:
