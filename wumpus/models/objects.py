@@ -25,6 +25,16 @@ _SNOWFLAKE_GEN_INCREMENT = 0
 
 
 class Timestamp(datetime):
+    """Represents a timestamp of something related to Discord.
+    This inherits from :class:`datetime.datetime`.
+
+    There are some major differences from datetime and this class:
+
+    * This class defaults to timezone-aware datetimes for consistency.
+    * When used in format strings, a "formatted timestamp" in the form of <t:unix:?format> is returned.
+        * This can be convenient, for example: `f"This user was created {user.created_at:R}."`
+    """
+
     __slots__ = (
         '_year',
         '_month',
@@ -63,24 +73,65 @@ class Timestamp(datetime):
         
         return f'<t:{int(self.timestamp())}:{style}>'
 
+    # noinspection PyMethodOverriding
     @classmethod
     def now(cls: Type[DT], /) -> DT:
+        """Return the current timestamp, timezone aware.
+
+        Returns
+        -------
+        :class:`.Timestamp`
+        """
         return super().now(timezone.utc)
 
     @classmethod
     def utcnow(cls: Type[DT], /) -> DT:
+        """An alias for :meth:`.Timestamp.now`.
+
+        Returns
+        -------
+        :class:`.Timestamp`
+        """
         return cls.now()
 
     @classmethod
     def utcfromtimestamp(cls: Type[DT], timestamp: float, /) -> DT:
+        """Return the timestamp from the given Unix timestamp.
+
+        Parameters
+        ----------
+        timestamp: float
+            The unix timestamp to use.
+
+        Returns
+        -------
+        :class:`.Timestamp`
+        """
         naive = super().utcfromtimestamp(int(timestamp))
         return naive.replace(tzinfo=timezone.utc)
 
     @classmethod
     def from_datetime(cls: Type[DT], dt: datetime, /) -> DT:
+        """Casts a :class:`datetime.datetime` into a :class:`.Timestamp`.
+
+        Parameters
+        ----------
+        dt: :class:`datetime.datetime`
+            The datetime to use.
+
+        Returns
+        -------
+        :class:`.Timestamp`
+        """
         return cls.utcfromtimestamp(dt.timestamp())
 
     def to_datetime(self, /) -> datetime:
+        """Casts this into a :class:`datetime.datetime`.
+
+        Returns
+        -------
+        :class:`datetime.datetime`
+        """
         args = (
             self.year,
             self.month,
@@ -101,6 +152,24 @@ class Timestamp(datetime):
         process_id: int = 0,
         increment: int = None
     ) -> Snowflake:
+        """Generates a snowflake ID from this timestamp.
+
+        All parameters are keyword-only and optional.
+
+        Parameters
+        ----------
+        worker_id: int
+            The worker ID this process is on.
+        process_id: int
+            The process ID.
+        increment: int
+            The increment number.
+
+        Returns
+        -------
+        Snowflake
+        """
+
         global _SNOWFLAKE_GEN_INCREMENT
 
         if increment is None:

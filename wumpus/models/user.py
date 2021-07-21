@@ -18,13 +18,23 @@ UserFormat = Literal['m', 'n', 't']
 
 
 class PartialUser(NativeObject):
-    __slots__ = ('_name', '_discriminator', '_avatar') + NativeObject.__slots__
+    __slots__ = (
+        '_name',
+        '_discriminator',
+        '_avatar',
+        '_public_flags',
+        '_system',
+        '_bot',
+        '__avatar_hash'
+    ) + NativeObject.__slots__
 
     _avatar: Asset
 
-    def __init__(self, connection: Connection, /, data: PartialUserPayload) -> None:
+    def __init__(self, connection: Connection, /, data: PartialUserPayload = None) -> None:
         self._connection: Connection = connection
-        self._load_data(data)
+        if data is not None:
+            self._load_data(data)
+
         super().__init__()
 
     def _load_data(self, data: PartialUserPayload) -> None:
@@ -135,7 +145,12 @@ class ClientUser(PartialUser):
     Represents the user that represents the client.
     """
 
-    __slots__ = PartialUser.__slots__
+    __slots__ = (
+        '_mfa_enabled',
+        '_verified',
+        '_locale',
+        '_flags'
+    ) + PartialUser.__slots__
 
     def _load_data(self, data: UserPayload) -> None:
         super()._load_data(data)
@@ -183,6 +198,7 @@ class ClientUser(PartialUser):
             The avatar to change to. This can be a raw byte string, or
             a file path that leads to the image.
         """
+
         payload = {}
         if name is not None:
             payload['username'] = name
@@ -208,7 +224,7 @@ class User(PartialUser, Messageable):
     Represents a Discord user.
     """
 
-    __slots__ = PartialUser.__slots__
+    __slots__ = ('_dm_channel_id',) + PartialUser.__slots__
 
     def _load_data(self, data: PartialUserPayload) -> None:
         self._dm_channel_id: int = None

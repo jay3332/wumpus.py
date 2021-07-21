@@ -14,6 +14,23 @@ Client
 .. autoclass:: wumpus.Router
     :members:
 
+
+Objects
+-------
+
+.. autoclass:: wumpus.Object
+    :members:
+
+.. autoclass:: wumpus.Timestamp
+    :members:
+    :inherited_members:
+
+**Snowflake**
+
+A type alias for :class:`int`.
+This is used when a type should be a "snowflake ID".
+
+
 User
 ----
 
@@ -35,6 +52,14 @@ Guild
 
 .. autoclass:: wumpus.GuildPreview
     :members:
+
+
+Member
+------
+
+.. autoclass:: wumpus.Member
+    :members:
+    :inherited-members:
 
 
 Role

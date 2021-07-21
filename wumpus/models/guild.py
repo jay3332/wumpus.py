@@ -18,7 +18,7 @@ from ..typings.payloads import GuildPayload, GuildPreviewPayload
 
 from .member import Member
 from .bitfield import InvertedBitfield, bit
-from .objects import NativeObject, Timestamp
+from .objects import Object, NativeObject, Timestamp
 from .asset import Asset
 
 from ..utils import _try_int, _bytes_to_image_data
@@ -310,8 +310,11 @@ class Guild(GuildPreview):
     async def kick(self: T, member: Member, *, reason: str = None) -> None:
         await self._api.members(member.id).delete(reason=reason)
     
-    async def ban(self: T, member: Member, *, reason: str = None, delete_message_days: ValidDeleteMessageDays = None) -> None:
+    async def ban(self: T, member: Member, *, reason: str = None, delete_message_days: ValidDeleteMessageDays = 1) -> None:
         await self._api.bans(member.id).put({'delete_message_days': delete_message_days}, reason=reason)
+
+    async def unban(self: T, member: Object, *, reason: str = None) -> None:
+        await self._api.bans(member.id).delete(reason=reason)
 
     async def leave(self, /) -> None:
         await self._connection.api.users.me.guilds.delete()
