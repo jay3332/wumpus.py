@@ -66,7 +66,7 @@ class PartialUser(NativeObject):
 
     @property
     def avatar(self) -> Asset:
-        """:class:`.Asset`: The user's display avatar."""
+        """:class:`~.Asset`: The user's display avatar."""
         return self._avatar
 
     @property

@@ -64,17 +64,17 @@ class Role(NativeObject):
         The Snowflake ID of this role.
     name: str
         The name of this role.
-    guild: :class:`.Guild`
+    guild: :class:`~.Guild`
         The guild this role belongs to.
     position: int
         The position of this role.
-    permissions: :class:`.Permissions`
+    permissions: :class:`~.Permissions`
         The permissions this role has.
     managed: bool
         Whether the role is managed by the guild.
     mentionable: bool
         Whether this role is mentionable.
-    color: :class:`.Color`
+    color: :class:`~.Color`
         The color of this role.
     hoist: bool
         Whether this role is hoisted.
@@ -185,9 +185,9 @@ class Role(NativeObject):
         ----------
         name: str
             The new name of the role.
-        permissions: Union[:class:`.Permissions`, int]
+        permissions: Union[:class:`~.Permissions`, int]
             The new permissions of the role.
-        color: Union[:class:`.Color`, int]
+        color: Union[:class:`~.Color`, int]
             The new color of the role.
         hoist: bool
             Whether or not to hoist the role.

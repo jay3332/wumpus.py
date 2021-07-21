@@ -48,7 +48,7 @@ class PartialEmoji(Object):
 
     @classmethod
     def parse(cls: Type[PT], string: str, /, *, connection: Connection = None) -> PT:
-        """Parses a string that represents an emoji into a :class:`.PartialEmoji`.
+        """Parses a string that represents an emoji into a :class:`~.PartialEmoji`.
 
         The given string should follow one of the following formats:
 
@@ -66,7 +66,7 @@ class PartialEmoji(Object):
 
         Returns
         -------
-        :class:`.PartialEmoji`
+        :class:`~.PartialEmoji`
             The partial emoji object representing the string.
         """
 
@@ -85,11 +85,11 @@ class PartialEmoji(Object):
 
     @property
     def image(self) -> Asset:
-        """Retrieves the :class:`.Asset` that represents this emoji.
+        """Retrieves the :class:`~.Asset` that represents this emoji.
 
         Returns
         -------
-        :class:`.Asset`
+        :class:`~.Asset`
             The asset of this emoji.
 
         Raises
@@ -148,7 +148,7 @@ class PartialEmoji(Object):
 
     @classmethod
     def from_json(cls: Type[PT], payload: JSON, /, *, connection: Connection = None) -> PT:
-        """Generates a :class:`.PartialEmoji` from a raw JSON payload.
+        """Generates a :class:`~.PartialEmoji` from a raw JSON payload.
         
         Parameters
         ----------
@@ -157,7 +157,7 @@ class PartialEmoji(Object):
 
         Returns
         -------
-        :class:`.PartialEmoji`
+        :class:`~.PartialEmoji`
             The generated partial emoji object from the payload.
         """
 
@@ -196,7 +196,7 @@ class Emoji(NativeObject):
     name: str
         The name of this emoji.
     roles: List[:class:`int`]
-    user: :class:`.User`
+    user: :class:`~.User`
     require_colons: :class:`bool`
     managed: :class:`bool`
     animated: :class:`bool`
