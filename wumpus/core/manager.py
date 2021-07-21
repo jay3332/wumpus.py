@@ -209,6 +209,7 @@ class UserManager(CacheBasedManager[User]):
         This is the exact equivalent of doing:
 
         .. code-block:: python3
+
             users.get(id) or await users.fetch(id)
 
         Parameters
@@ -279,6 +280,7 @@ class GuildManager(CacheBasedManager[Guild]):
         This is the exact equivalent of doing:
 
         .. code:: python
+
             guilds.get(id) or await guilds.fetch(id)
 
         Parameters

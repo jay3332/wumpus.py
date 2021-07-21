@@ -129,8 +129,8 @@ class Member(User):
 
         This is equivalent to :meth:`.Guild.kick`.
 
-        Paramters
-        ---------
+        Parameters
+        ----------
         reason: str
             The audit log reason to use.
         """
@@ -144,8 +144,8 @@ class Member(User):
 
         This is equivalent to :meth:`.Guild.ban`.
 
-        Paramters
-        ---------
+        Parameters
+        ----------
         delete_message_days: int
             The amount of days worth of message history from this user to delete.
         reason: str

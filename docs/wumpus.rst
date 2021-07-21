@@ -23,7 +23,7 @@ Objects
 
 .. autoclass:: wumpus.Timestamp
     :members:
-    :inherited_members:
+    :inherited-members:
 
 **Snowflake**
 

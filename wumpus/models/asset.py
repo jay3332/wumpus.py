@@ -182,15 +182,15 @@ class Asset(BaseAsset):
     def with_static_format(self: T, static_format: StaticFormatTypes, /) -> T:
         """Return a copy of this asset with the given static format.
 
-       Parameters
-       ----------
-       static_format: str
+        Parameters
+        ----------
+        static_format: str
            The new static format of the asset.
 
-       Returns
-       -------
-       :class:`~.Asset`
-       """
+        Returns
+        -------
+        :class:`~.Asset`
+        """
 
         new_info = _make_asset_info(self._info.format, self._info.size, static_format)
         return self._copy(new_info)
@@ -206,19 +206,19 @@ class Asset(BaseAsset):
         """Return a copy of this asset with replaced attributes.
         All parameters are positional only and optional.
 
-       Parameters
-       ----------
-       format: str
+        Parameters
+        ----------
+        format: str
            The new format of the asset.
         size: int
             The new size of the asset.
         static_format: str
             The new static format of the asset.
 
-       Returns
-       -------
-       :class:`~.Asset`
-       """
+        Returns
+        -------
+        :class:`~.Asset`
+        """
 
         new_info = _make_asset_info(
             format or self._info.format,
