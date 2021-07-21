@@ -6,11 +6,6 @@ class Permissions(Bitfield):
 
     This can be constructed using a permissions integer
     or by using keyword-arguments.
-
-    Attributes
-    ----------
-    value: int
-        The raw permissions integer this represents.
     """
 
     def __init__(self, value: int = 0, /, **kwargs) -> None:
