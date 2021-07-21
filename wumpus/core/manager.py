@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Callable, Dict, Generic, Iterable, TypeVar
+from typing import Callable, Dict, Generic, List, Iterable, TypeVar
 
 from .connection import Connection
 
@@ -64,30 +64,93 @@ class CacheBasedManager(BaseManager[T], Generic[T]):
 
     @property
     def cache(self, /) -> Dict[Snowflake, T]:
+        """Dict[Snowflake, Any]: The internal cache of this manager."""
         return self._cache
 
     @property
     def count(self, /) -> int:
+        """int: The amount of objects stored in the internal cache."""
         return len(self._cache)
 
-    def flatten(self, /) -> list:
+    def flatten(self, /) -> List[T]:
+        """Returns a list of all objects stored in the internal cache.
+
+        Returns
+        -------
+        List[Any]
+        """
         return list(self._cache.values())
 
     def has(self, id: Snowflake, /) -> bool:
+        """Return whether or not the internal cache is storing
+        an object mapped to the specified snowflake ID.
+
+        Parameters
+        ----------
+        id: Snowflake
+            The ID to lookup.
+
+        Returns
+        -------
+        bool
+        """
         return id in self._cache
 
-    def get(self, id: Snowflake, /) -> User:
+    def get(self, id: Snowflake, /) -> T:
+        """Gets and returns an item from the internal cache by it's snowflake ID.
+
+        Parameters
+        ----------
+        id: Snowflake
+            The ID to lookup.
+        """
         return self._cache.get(id)
 
     def find(self, predicate: Callable[[T], bool], /) -> T:
+        """Finds an item in the internal cache by a predicate function.
+
+        Parameters
+        ----------
+        predicate: Callable[[Any], bool]
+            The check predicate to use.
+
+        Returns
+        -------
+        Optional[Any]
+        """
         for sample in self._cache.values():
             if predicate(sample):
                 return sample
 
     def filter(self, predicate: Callable[[T], bool], /) -> Iterable[T]:
+        """Returns a :py:class:`filter` object after filtering the internal class with a predicate.
+
+        Parameters
+        ----------
+        predicate: Callable[[Any], bool]
+            The check predicate to use.
+
+        Returns
+        -------
+        Iterable[Any]
+        """
         return filter(predicate, self._cache.values()) 
 
     def subset(self: C, predicate: Callable[[T], bool], /) -> C:
+        """Creates a copy of this class with a subset of the cache.
+
+        For example, `Manager([1, 2, 3]).subset(lambda x: x % 2 == 1)` would return
+        `Manager([1, 3])`. (Note that this is not how managers are actually constructed.)
+
+        Parameters
+        ----------
+        predicate: Callable[[Any], bool]
+            The check predicate to use.
+
+        Returns
+        -------
+        Any
+        """
         new_cache = {k: v for k, v in self._cache.items() if predicate(v)}
         return self.__class__(self._connection, new_cache)
 
@@ -122,7 +185,7 @@ class UserManager(CacheBasedManager[User]):
         
         Returns
         -------
-        Optional[:class:`User`]
+        Optional[:class:`.User`]
             The user fetched. If none was found, `None` is returned.
         """
         
@@ -132,7 +195,7 @@ class UserManager(CacheBasedManager[User]):
             return None
 
         if cache:
-            return self._add_from_payload(data, cache)
+            return self._add_from_payload(data)
         
         _user = User(self._connection, data)
         _user.__object_cached__ = False
@@ -155,7 +218,7 @@ class UserManager(CacheBasedManager[User]):
         
         Returns
         -------
-        Optional[:class:`User`]
+        Optional[:class:`.User`]
             The user found. If none was found, `None` is returned.
         """
         
@@ -192,7 +255,7 @@ class GuildManager(CacheBasedManager[Guild]):
         
         Returns
         -------
-        Optional[:class:`Guild`]
+        Optional[:class:`.Guild`]
             The guild fetched. If none was found, `None` is returned.
         """
         
@@ -202,7 +265,7 @@ class GuildManager(CacheBasedManager[Guild]):
             return None
 
         if cache:
-            return self._add_from_payload(data, cache)
+            return self._add_from_payload(data)
         
         _guild = Guild(self._connection, data)
         _guild.__object_cached__ = False
@@ -225,8 +288,8 @@ class GuildManager(CacheBasedManager[Guild]):
         
         Returns
         -------
-        Optional[:class:`Guild`]
+        Optional[:class:`.Guild`]
             The guild found. If none was found, `None` is returned.
         """
-        
+
         return self.get(id) or await self.fetch(id)
