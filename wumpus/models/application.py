@@ -19,7 +19,7 @@ class Application(NativeObject):
         The id of the application
     name: :class:`str` 
         The name of the application
-    icon: :class:`Asset` 
+    icon: :class:`~.Asset` 
         The asset of the application
     description: :class:`str` 
         The description of the application

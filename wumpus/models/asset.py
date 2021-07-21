@@ -70,7 +70,7 @@ class Asset(BaseAsset):
     Represents an image representing something inside of Discord.
     """
 
-    # TODO: easier way to modify :class:`.AssetInfo`
+    # TODO: easier way to modify :class:`~.AssetInfo`
     # TODO: :meth:`.Asset.read` and :meth:`.Asset.save`
 
     __slots__ = ('_connection', '_params', '_animated', '_url', '_hash')
@@ -157,7 +157,7 @@ class Asset(BaseAsset):
 
         Returns
         -------
-        :class:`.Asset`
+        :class:`~.Asset`
         """
 
         new_info = _make_asset_info(format, self._info.size, self._info.static_format)
@@ -173,7 +173,7 @@ class Asset(BaseAsset):
 
         Returns
         -------
-        :class:`.Asset`
+        :class:`~.Asset`
         """
 
         new_info = _make_asset_info(self._info.format, size, self._info.static_format)
@@ -189,7 +189,7 @@ class Asset(BaseAsset):
 
        Returns
        -------
-       :class:`.Asset`
+       :class:`~.Asset`
        """
 
         new_info = _make_asset_info(self._info.format, self._info.size, static_format)
@@ -217,7 +217,7 @@ class Asset(BaseAsset):
 
        Returns
        -------
-       :class:`.Asset`
+       :class:`~.Asset`
        """
 
         new_info = _make_asset_info(

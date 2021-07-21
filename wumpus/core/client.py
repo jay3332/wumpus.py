@@ -88,12 +88,12 @@ class Client(Emitter):
 
     @property
     def api(self) -> Optional[Router]:
-        """:class:`.Router`: The HTTP API router this client uses."""
+        """:class:`~.Router`: The HTTP API router this client uses."""
         return self._connection.api if self._connection else None
 
     @property
     def user(self) -> ClientUser:  # type: ignore
-        """:class:`.ClientUser` The Discord user this client represents."""
+        """:class:`~.ClientUser` The Discord user this client represents."""
         return self._connection.user
 
     def _establish_connection(self, *, force: bool = False) -> None:
@@ -114,7 +114,7 @@ class Client(Emitter):
     async def fetch_guild_preview(self, /, id: Snowflake) -> GuildPreview:
         """|coro|
 
-        Fetches a :class:`.GuildPreview` by it's ID.
+        Fetches a :class:`~.GuildPreview` by it's ID.
 
         .. note::
              If the client is not in the guild, then the guild must be lurkable.
@@ -126,7 +126,7 @@ class Client(Emitter):
 
         Returns
         -------
-        :class:`.GuildPreview`
+        :class:`~.GuildPreview`
         """
 
         data = await self.api.guilds(id).preview.get()

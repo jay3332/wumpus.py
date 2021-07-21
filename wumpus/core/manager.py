@@ -123,7 +123,7 @@ class CacheBasedManager(BaseManager[T], Generic[T]):
                 return sample
 
     def filter(self, predicate: Callable[[T], bool], /) -> Iterable[T]:
-        """Returns a :py:class:`filter` object after filtering the internal class with a predicate.
+        """Returns a `filter <https://docs.python.org/3/library/functions.html#filter>`_ object after filtering the internal cache with a predicate.
 
         Parameters
         ----------
@@ -185,7 +185,7 @@ class UserManager(CacheBasedManager[User]):
         
         Returns
         -------
-        Optional[:class:`.User`]
+        Optional[:class:`~.User`]
             The user fetched. If none was found, `None` is returned.
         """
         
@@ -208,7 +208,7 @@ class UserManager(CacheBasedManager[User]):
 
         This is the exact equivalent of doing:
 
-        .. code:: python
+        .. code-block:: python3
             users.get(id) or await users.fetch(id)
 
         Parameters
@@ -218,7 +218,7 @@ class UserManager(CacheBasedManager[User]):
         
         Returns
         -------
-        Optional[:class:`.User`]
+        Optional[:class:`~.User`]
             The user found. If none was found, `None` is returned.
         """
         
@@ -255,7 +255,7 @@ class GuildManager(CacheBasedManager[Guild]):
         
         Returns
         -------
-        Optional[:class:`.Guild`]
+        Optional[:class:`~.Guild`]
             The guild fetched. If none was found, `None` is returned.
         """
         
@@ -288,7 +288,7 @@ class GuildManager(CacheBasedManager[Guild]):
         
         Returns
         -------
-        Optional[:class:`.Guild`]
+        Optional[:class:`~.Guild`]
             The guild found. If none was found, `None` is returned.
         """
 
