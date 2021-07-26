@@ -188,8 +188,7 @@ class Gateway:
             data = self._inflator.decompress(self._buffer)
             self._buffer = bytearray()
 
-        data = earl.unpack(data)
-        message = json.loads(data)
+        message = earl.unpack(data)
         op = OpCode(message.get('op'))
         data = message.get('d')
         seq = message.get('s')
